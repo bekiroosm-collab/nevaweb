@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neva Web Design</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+    font-family:Inter,system-ui,sans-serif;
+    background:#fff;
+    color:#0b0b0b;
+}
+
+/* COLORS */
+:root{
+    --blue:#3b82f6;
+    --purple:#7c3aed;
+    --grad:linear-gradient(135deg,var(--blue),var(--purple));
+    --gray:#6b7280;
+}
+
+/* GLOBAL */
+section{padding:120px 7%}
+p{color:var(--gray);line-height:1.7}
+
+/* NAV */
+nav{
+    position:fixed;
+    top:0;width:100%;
+    padding:20px 7%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    backdrop-filter:blur(14px);
+    background:rgba(255,255,255,.75);
+    z-index:999;
+}
+.logo{
+    width:130px;
+    height:38px;
+}
+
+.logo img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+}
+
+nav ul{display:flex;gap:30px;list-style:none}
+nav a{text-decoration:none;color:#0b0b0b;font-weight:600}
+
+/* ===== HERO (NO OVERLAY) ===== */
+.hero{
+    min-height:100vh;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    align-items:center;
+    padding:0 7%;
+    position:relative;
+    background:url("hero2.png") center/cover no-repeat;
+}
+
+/* overlay KAPALI */
+.hero::after{
+    display:none;
+}
+
+/* içerik */
+.hero-content{
+    position:relative;
+    max-width:640px;
+    z-index:2;
+}
+
+/* başlık */
+.hero h1{
+    font-size:clamp(2.6rem,4vw,3.6rem);
+    font-weight:800;
+    color:#0b0b0b;
+    line-height:1.15;
+}
+
+/* vurgulu kelime */
+.hero h1 span{
+    color:#2563eb;
+}
+
+/* açıklama */
+.hero p{
+    margin-top:22px;
+    font-size:1.05rem;
+    color:#4b5563;
+    max-width:480px;
+}
+
+/* buton */
+.hero .btn{
+    margin-top:40px;
+    display:inline-block;
+    padding:14px 38px;
+    border-radius:999px;
+    background:#2563eb;
+    color:#fff;
+    font-weight:600;
+    text-decoration:none;
+    transition:.35s ease;
+}
+
+.hero .btn:hover{
+    transform:translateY(-4px);
+    box-shadow:0 18px 40px rgba(37,99,235,.35);
+}
+
+/* MOBİL */
+@media(max-width:900px){
+    .hero{
+        grid-template-columns:1fr;
+        text-align:center;
+        padding:0 6%;
+    }
+
+    .hero-content{
+        margin:auto;
+    }
+
+    .hero p{
+        margin-left:auto;
+        margin-right:auto;
+    }
+}
+
+
+/* SERVICES */
+.services{background:#fff}
+.service-list{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:30px;
+    margin-top:60px;
+}
+.service-card{
+    padding:40px;
+    border-radius:28px;
+    background:#f9fafb;
+    transition:.5s;
+}
+.service-card:hover{
+    transform:translateY(-12px) scale(1.03);
+    box-shadow:0 30px 60px rgba(0,0,0,.08);
+}
+.service-icon{
+    width:36px;height:36px;
+    margin-bottom:20px;
+    background:var(--grad);
+    border-radius:12px;
+}
+
+/* PROJECTS */
+.projects{background:#f9fafb}
+.project-grid{
+    margin-top:60px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:40px;
+}
+.project{
+    height:360px;
+    background:#e5e7eb;
+    border-radius:30px;
+    transition:.5s;
+}
+.project:hover{
+    transform:scale(1.04);
+}
+
+/* LOGO GRID */
+.logo-grid{
+    margin-top:80px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+    align-items:center;
+    justify-items:center;
+    gap:48px;
+}
+
+.logo-item img{
+    height:96px;                 /* 🔥 BOYUTU BÜYÜTTÜK */
+    width:auto;
+    display:block;
+
+    filter:grayscale(100%) brightness(.9);
+    opacity:.7;
+
+    transition:
+        filter .35s ease,
+        opacity .35s ease,
+        transform .35s ease;
+}
+
+.logo-item img:hover{
+    filter:grayscale(0%) brightness(1);
+    opacity:1;
+    transform:scale(1.06);
+}
+
+
+/* HOVER */
+.logo-item img:hover{
+    filter:grayscale(0%) brightness(1);
+    opacity:1;
+    transform:scale(1.08);
+}
+
+
+/* CONTACT FORM */
+.contact{
+    background:#fff;
+}
+form{
+    max-width:520px;
+    margin:60px auto 0;
+    display:grid;
+    gap:20px;
+}
+input,textarea{
+    padding:16px 18px;
+    border-radius:14px;
+    border:1px solid #e5e7eb;
+    font-size:1rem;
+}
+textarea{min-height:140px;resize:none}
+button{
+    padding:16px;
+    border:none;
+    border-radius:999px;
+    background:var(--grad);
+    color:#fff;
+    font-weight:700;
+    cursor:pointer;
+    transition:.4s;
+}
+button:hover{
+    transform:scale(1.08);
+    box-shadow:0 20px 40px rgba(59,130,246,.35);
+}
+
+/* FOOTER */
+footer{
+    background:#0b0b0b;
+    color:#fff;
+    padding:60px 7%;
+    text-align:center;
+}
+footer p{color:#9ca3af}
+
+/* SCROLL ANIM */
+.reveal{
+    opacity:0;
+    transform:translateY(60px);
+    transition:1s cubic-bezier(.2,.8,.2,1);
+}
+.reveal.active{
+    opacity:1;
+    transform:none;
+}
+
+/* MOBILE */
+@media(max-width:900px){
+    .service-list{
+        grid-template-columns:1fr;
+    }
+    nav ul{display:none}
+}
+.service-icon{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.service-icon img{
+    width:18px;
+}
+.project img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    border-radius:30px;
+}
+.why-us{
+    background:#f9fafb;
+}
+.why-grid{
+    margin-top:60px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:30px;
+}
+.why-card{
+    padding:36px;
+    border-radius:26px;
+    background:#fff;
+    transition:.4s;
+}
+.why-card:hover{
+    transform:translateY(-10px);
+    box-shadow:0 25px 50px rgba(0,0,0,.08);
+}
+.project{
+    position:relative;
+    overflow:hidden;
+}
+.project::after{
+    content:"Projeyi İncele";
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.45);
+    color:#fff;
+    font-weight:700;
+    font-size:1.1rem;
+    opacity:0;
+    transition:.4s;
+}
+.project:hover::after{
+    opacity:1;
+}
+.process{
+    background:#f9fafb;
+}
+.process-grid{
+    margin-top:60px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:30px;
+}
+.process-step{
+    padding:34px;
+    background:#fff;
+    border-radius:22px;
+    text-align:center;
+    font-weight:600;
+    transition:.35s;
+}
+.process-step:hover{
+    transform:translateY(-8px);
+    box-shadow:0 20px 40px rgba(0,0,0,.08);
+}
+.why-card,
+.service-card,
+.process-step{
+    position:relative;
+}
+
+.why-card::before,
+.service-card::before,
+.process-step::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    padding:1px;
+    background:linear-gradient(135deg, rgba(59,130,246,.35), rgba(124,58,237,.35));
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;
+    pointer-events:none;
+    opacity:.4;
+}
+@keyframes float{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-10px)}
+}
+
+.logo-item:nth-child(odd) img{
+    animation:float 6s ease-in-out infinite;
+}
+.logo-item:nth-child(even) img{
+    animation:float 7.5s ease-in-out infinite;
+}
+.hero .btn,
+button{
+    position:relative;
+    overflow:hidden;
+}
+
+.hero .btn::after,
+button::after{
+    content:"";
+    position:absolute;
+    top:0;
+    left:-120%;
+    width:120%;
+    height:100%;
+    background:linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,.35),
+        transparent
+    );
+    transition:.6s;
+}
+
+.hero .btn:hover::after,
+button:hover::after{
+    left:120%;
+}
+.bg-text{
+    position:absolute;
+    font-size:clamp(6rem,16vw,18rem);
+    font-weight:900;
+    color:#000;
+    opacity:.03;
+    pointer-events:none;
+    user-select:none;
+    white-space:nowrap;
+}
+#cursor-glow{
+    position:fixed;
+    top:0;left:0;
+    width:420px;
+    height:420px;
+    background:radial-gradient(circle, rgba(59,130,246,.18), transparent 60%);
+    filter:blur(80px);
+    pointer-events:none;
+    z-index:1;
+    transform:translate(-50%,-50%);
+}
+.tilt{
+    transition:transform .2s ease;
+    transform-style:preserve-3d;
+}
+body.scrolled{
+    background:#f9fafb;
+}
+#cursor-glow{
+    position:fixed;
+    width:480px;
+    height:480px;
+    background:radial-gradient(circle, rgba(124,58,237,.22), transparent 60%);
+    filter:blur(90px);
+    pointer-events:none;
+    z-index:1;
+    transform:translate(-50%,-50%);
+}
+.bg-text{
+    position:absolute;
+    font-size:clamp(6rem,18vw,20rem);
+    font-weight:900;
+    opacity:.035;
+    color:#000;
+    pointer-events:none;
+    user-select:none;
+    white-space:nowrap;
+}
+body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+    pointer-events:none;
+    z-index:2;
+}
+#intro{
+    position:fixed;
+    inset:0;
+    background:#4c0890;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+    animation:intro 3s ease forwards;
+}
+#intro h1{
+    font-size:4rem;
+    letter-spacing:12px;
+}
+@keyframes intro{
+    0%{opacity:1}
+    100%{opacity:0;pointer-events:none}
+}
+@media(max-width:768px){
+    section{
+        padding:90px 6%;
+    }
+
+    h1{
+        font-size:clamp(2.2rem,7vw,2.8rem);
+    }
+
+    h2{
+        font-size:1.9rem;
+    }
+
+    p{
+        font-size:1rem;
+    }
+}
+@media(max-width:900px){
+    .hero{
+        min-height:100svh;
+        grid-template-columns:1fr;
+        background-position:center top;
+    }
+
+    .hero-content{
+        padding-top:120px;
+    }
+
+    .hero h1{
+        font-size:2.4rem;
+        line-height:1.15;
+    }
+
+    .hero p{
+        font-size:1.05rem;
+    }
+
+    .hero .btn{
+        padding:16px 44px;
+        font-size:1rem;
+    }
+}
+@media(max-width:900px){
+    .service-list{
+        grid-template-columns:1fr;
+        gap:26px;
+    }
+
+    .service-card{
+        padding:34px;
+    }
+}
+@media(max-width:768px){
+    .why-grid{
+        grid-template-columns:1fr;
+        gap:26px;
+    }
+
+    .why-card{
+        padding:32px;
+    }
+
+    .bg-text{
+        font-size:10rem;
+    }
+}
+@media(max-width:768px){
+    .logo-grid{
+        grid-template-columns:repeat(2,1fr);
+        gap:32px;
+        margin-top:60px;
+    }
+
+    .logo-item img{
+        height:70px;
+    }
+}
+@media(max-width:768px){
+    .testimonial p{
+        font-size:1.15rem !important;
+        padding:0 8%;
+    }
+}
+@media(max-width:768px){
+    form{
+        padding:0 6%;
+    }
+
+    input,textarea{
+        font-size:1rem;
+    }
+
+    button{
+        padding:18px;
+        font-size:1.05rem;
+    }
+}
+@media(max-width:900px){
+    nav{
+        padding:16px 6%;
+    }
+
+    .logo{
+        width:110px;
+    }
+}
+@media(max-width:768px){
+    #cursor-glow{
+        width:260px;
+        height:260px;
+        filter:blur(60px);
+        opacity:.6;
+    }
+}
+@media(max-width:900px){
+    .hero{
+        background:#fff !important;
+    }
+}
+/* HAMBURGER */
+.menu-btn{
+    display:none;
+    flex-direction:column;
+    gap:6px;
+    cursor:pointer;
+    z-index:1001;
+}
+.menu-btn span{
+    width:26px;
+    height:3px;
+    background:#0b0b0b;
+    border-radius:4px;
+}
+
+/* MOBILE MENU */
+.mobile-menu{
+    position:fixed;
+    top:0;
+    right:-100%;
+    width:80%;
+    height:100vh;
+    background:#fff;
+    padding:120px 40px;
+    display:flex;
+    flex-direction:column;
+    gap:30px;
+    font-size:1.4rem;
+    font-weight:700;
+    transition:.5s ease;
+    z-index:1000;
+}
+.mobile-menu a{
+    text-decoration:none;
+    color:#0b0b0b;
+}
+
+/* ACTIVE */
+.mobile-menu.active{
+    right:0;
+}
+
+/* MOBILE ONLY */
+@media(max-width:900px){
+    .menu-btn{
+        display:flex;
+    }
+
+    nav ul{
+        display:none;
+    }
+    nav{
+    min-height:72px;
+}
+
+}
+@media(max-width:768px){
+    .logo-item img{
+        filter:none !important;
+        opacity:1 !important;
+        animation:none;
+    }
+}
+@media(max-width:900px){
+    #intro{
+        display:none !important;
+    }
+}
+@media(max-width:900px){
+    nav{
+        padding:14px 6%;
+    }
+
+    .logo{
+        height:32px;
+        display:flex;
+        align-items:center;
+    }
+
+    .logo img{
+        height:100%;
+        width:auto;
+        object-fit:contain;
+    }
+}
+@media(max-width:900px){
+    nav{
+        padding-left:4%;
+    }
+}
+@media(max-width:900px){
+    nav{
+        justify-content:flex-start;
+        gap:14px;
+    }
+}
+@media(max-width:900px){
+    nav{
+        padding-left:16px;
+        padding-right:16px;
+    }
+}
+.site-footer{
+    background:#0f172a;
+    color:#e5e7eb;
+    padding:90px 7% 40px;
+    position:relative;
+}
+
+.site-footer::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at top,
+        rgba(59,130,246,.15),
+        transparent 60%);
+    pointer-events:none;
+}
+
+.footer-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:60px;
+    margin-bottom:60px;
+}
+
+.footer-brand img{
+    width:140px;
+    margin-bottom:20px;
+}
+
+.footer-brand p{
+    color:#9ca3af;
+    line-height:1.7;
+    max-width:320px;
+}
+
+.site-footer h4{
+    font-size:1.1rem;
+    margin-bottom:18px;
+    color:#fff;
+}
+
+.footer-links a{
+    display:block;
+    color:#9ca3af;
+    text-decoration:none;
+    margin-bottom:12px;
+    transition:.3s;
+}
+
+.footer-links a:hover{
+    color:#fff;
+    transform:translateX(6px);
+}
+
+.footer-contact p{
+    margin-bottom:12px;
+    color:#9ca3af;
+}
+
+.footer-cta p{
+    color:#9ca3af;
+    margin-bottom:20px;
+}
+
+.footer-btn{
+    display:inline-block;
+    padding:14px 36px;
+    border-radius:999px;
+    background:linear-gradient(135deg,#3b82f6,#7c3aed);
+    color:#fff;
+    font-weight:700;
+    text-decoration:none;
+    transition:.35s;
+}
+
+.footer-btn:hover{
+    transform:translateY(-4px);
+    box-shadow:0 20px 40px rgba(59,130,246,.35);
+}
+
+.footer-bottom{
+    border-top:1px solid rgba(255,255,255,.08);
+    padding-top:24px;
+    text-align:center;
+}
+
+.footer-bottom p{
+    color:#6b7280;
+    font-size:.95rem;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+    .site-footer{
+        padding:70px 6% 36px;
+        text-align:center;
+    }
+
+    .footer-brand p{
+        margin:auto;
+    }
+
+    .footer-links a:hover{
+        transform:none;
+    }
+}
+/* COOL TOP BAR */
+.top-bar.cool{
+    position:fixed;
+    top:0;
+    width:100%;
+    height:44px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 7%;
+    font-size:.9rem;
+    backdrop-filter:blur(14px);
+    background:rgba(255,255,255,.65);
+    border-bottom:1px solid rgba(255,255,255,.4);
+    z-index:1001;
+}
+
+/* gradient glow çizgi */
+.top-bar.cool::after{
+    content:"";
+    position:absolute;
+    bottom:0;
+    left:0;
+    width:100%;
+    height:1px;
+    background:linear-gradient(90deg,#3b82f6,#7c3aed);
+    opacity:.6;
+}
+
+.top-left .chip{
+    padding:6px 14px;
+    border-radius:999px;
+    background:rgba(59,130,246,.1);
+    color:#2563eb;
+    font-weight:600;
+}
+
+.top-right{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.top-link{
+    text-decoration:none;
+    color:#0b0b0b;
+    font-weight:600;
+    position:relative;
+    transition:.3s;
+}
+
+.top-link::after{
+    content:"";
+    position:absolute;
+    left:0;
+    bottom:-3px;
+    width:0;
+    height:2px;
+    background:linear-gradient(90deg,#3b82f6,#7c3aed);
+    transition:.3s;
+}
+
+.top-link:hover{
+    color:#2563eb;
+}
+
+.top-link:hover::after{
+    width:100%;
+}
+
+.sep{
+    color:#9ca3af;
+}
+
+.hours{
+    color:#6b7280;
+    font-weight:500;
+}
+
+/* NAV AŞAĞI KAYSIN */
+nav{
+    top:44px;
+}
+
+/* MOBILE */
+@media(max-width:900px){
+    .top-bar.cool{
+        display:none;
+    }
+
+    nav{
+        top:0;
+    }
+}
+
+</style>
+</head>
+
+<body>
+    <div id="intro">
+    <h1>
+    <span>NEVA WEB DESİGN</span><br>
+    
+</h1>
+
+</div>
+
+<div id="cursor-glow"></div>
+<div class="top-bar cool">
+    <div class="top-left">
+        <span class="chip">📞 +90 543 609 18 18</span>
+    </div>
+
+    <div class="top-right">
+        <a href="https://wa.me/905436091818" target="_blank" class="top-link">
+            💬 WhatsApp
+        </a>
+        <span class="sep">•</span>
+        <a href="#contact" class="top-link">
+            ✉️ İletişim
+        </a>
+        <span class="sep">•</span>
+        <span class="hours">Pzt – Paz · 12.00 – 00.00</span>
+    </div>
+</div>
+
+<nav>
+    <div class="menu-btn">
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+
+    <div class="logo">
+    <img src="logo2.png" alt="Neva Web Design">
+</div>
+    <ul>
+        <li><a href="#services">Hizmetler</a></li>
+<li><a href="#why-uss">Neden Biz</a></li>
+<li><a href="#references">Referanslar</a></li>
+<li><a href="#contact">İletişim</a></li>
+
+    </ul>
+</nav>
+<div class="mobile-menu">
+    <a href="#projects">Projeler</a>
+    <a href="#contact">İletişim</a>
+</div>
+
+
+<section class="hero">
+    <div class="hero-content reveal">
+        <h1>Dijitali <span>sade</span> ve<br>etkili hale getiriyoruz</h1>
+        <p>Modern, hızlı ve premium web deneyimleri.</p>
+        <a href="#contact" class="btn">Teklif Al</a>
+    </div>
+</section>
+<section class="services" id="services">
+<section class="services">
+    <div class="service-list">
+        <div class="service-card reveal">
+            <div class="service-icon"></div>
+            <h3>Web Tasarımı</h3>
+            <p>Şık ve kullanıcı odaklı tasarımlar.</p>
+        </div>
+        <div class="service-card reveal">
+            <div class="service-icon"></div>
+            <h3>E-Ticaret</h3>
+            <p>Satış artıran güçlü altyapılar.</p>
+        </div>
+        <div class="service-card reveal">
+            <div class="service-icon">
+    <img src="log.png" alt="">
+</div>
+            <h3>SEO & Performans</h3>
+            <p>Hızlı ve Google uyumlu siteler.</p>
+        </div>
+    </div>
+</section>
+
+
+<section class="why-us reveal" id="why-uss">
+    
+    <div class="bg-text" style="top:-40px;left:-60px">NEVA</div>
+
+    <h2 style="text-align:center">Neden Neva Web Design?</h2>
+
+    <div class="why-grid">
+        <div class="why-card">
+            <h3>🚀 Hız & Performans</h3>
+            <p>Optimize edilmiş, hızlı ve akıcı web siteleri.</p>
+        </div>
+
+        <div class="why-card">
+            <h3>🎨 Premium Tasarım</h3>
+            <p>Modern, sade ve marka odaklı arayüzler.</p>
+        </div>
+
+        <div class="why-card">
+            <h3>📈 Dönüşüm Odaklı</h3>
+            <p>Ziyaretçiyi müşteriye çeviren UX.</p>
+        </div>
+
+        <div class="why-card">
+            <h3>🔍 SEO Uyumlu</h3>
+            <p>Google dostu altyapı ve temiz kod.</p>
+        </div>
+    </div>
+</section>
+
+
+<div class="logo-grid reveal">
+    <a href="https://caddehotdogburger.com.tr" class="logo-item" target="_blank">
+        <img src="caddelogo.png" alt="Cadde">
+    </a>
+
+    <a href="https://mybakademi.com" class="logo-item" target="_blank">
+        <img src="iconbeyaz.png" alt="Icon">
+    </a>
+
+    <a href="https://hayalgarden.vercel.app" class="logo-item" target="_blank">
+        <img src="hayallogo.png" alt="Hayal">
+    </a>
+</div>
+
+
+<section class="testimonial reveal">
+    <div class="bg-text" style="bottom:-40px;right:-60px">DESIGN</div>
+
+    <p style="font-size:1.5rem;font-weight:600;max-width:800px;margin:auto;text-align:center">
+        “Bütün süreçte iletişimde olarak çok güzel ve tam istediğimiz bir web sitesi çıkarttığınız için teşekkür ederiz.”
+    </p>
+    <p style="text-align:center;margin-top:20px;color:#6b7280">
+        — Cadde Hotdog & Burger
+    </p>
+
+    <p style="font-size:1.5rem;font-weight:600;max-width:800px;margin:auto;text-align:center">
+        “Kardeşim internet sitesini çok beğendim bu kadar olabileceğini tahmin etmedim. Bu kadar kısa sürede bitirmen ayrıca harika çok teşekkür ederim.🙏”
+    </p>
+    <p style="text-align:center;margin-top:20px;color:#6b7280">
+        — MYB Akademi
+    </p>
+
+</section>
+
+</section>
+
+<section class="contact" id="contact">
+    <h2 class="reveal" style="text-align:center">İletişime Geç</h2>
+    <form class="reveal">
+        <input type="text" placeholder="Ad Soyad">
+        <input type="email" placeholder="E-posta">
+        <textarea placeholder="Mesajınız"></textarea>
+        <button>Gönder</button>
+    </form>
+</section>
+
+<footer class="site-footer">
+    <div class="footer-grid">
+
+        <!-- BRAND -->
+        <div class="footer-brand">
+            <img src="logo2.png" alt="Neva Web Design">
+            <p>
+                Modern, hızlı ve premium web deneyimleri tasarlıyoruz.
+                Markanızı dijitalde güçlü hale getiriyoruz.
+            </p>
+        </div>
+
+        <!-- LINKS -->
+        <div class="footer-links">
+            <h4>Hızlı Menü</h4>
+            <a href="#projects">Projeler</a>
+            <a href="#contact">İletişim</a>
+            <a href="#">Hizmetler</a>
+        </div>
+
+        <!-- CONTACT -->
+        <div class="footer-contact">
+            <h4>İletişim</h4>
+            <p>📍 Türkiye</p>
+            <p>✉️ info@nevawebdesign.com</p>
+            <p>💬 WhatsApp ile iletişim</p>
+        </div>
+
+        <!-- CTA -->
+        <div class="footer-cta">
+            <h4>Projen mi var?</h4>
+            <p>Markan için etkileyici bir web sitesi tasarlayalım.</p>
+            <a href="#contact" class="footer-btn">Teklif Al</a>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <p>© 2026 Neva Web Design — Tüm Hakları Saklıdır</p>
+    </div>
+</footer>
+
+
+<script>
+const items=document.querySelectorAll('.reveal');
+const obs=new IntersectionObserver(e=>{
+    e.forEach((el,i)=>{
+        if(el.isIntersecting){
+            setTimeout(()=>el.target.classList.add('active'),i*120);
+        }
+    })
+},{threshold:.2});
+items.forEach(i=>obs.observe(i));
+document.addEventListener("mousemove",e=>{
+    const glow=document.getElementById("cursor-glow");
+    glow.style.left=e.clientX+"px";
+    glow.style.top=e.clientY+"px";
+});
+document.querySelectorAll(".tilt").forEach(card=>{
+    card.addEventListener("mousemove",e=>{
+        const rect=card.getBoundingClientRect();
+        const x=e.clientX-rect.left;
+        const y=e.clientY-rect.top;
+
+        const rotateX=((y/rect.height)-.5)*-10;
+        const rotateY=((x/rect.width)-.5)*10;
+
+        card.style.transform=`rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
+
+    card.addEventListener("mouseleave",()=>{
+        card.style.transform="rotateX(0) rotateY(0)";
+    });
+});
+window.addEventListener("scroll",()=>{
+    if(window.scrollY>600){
+        document.body.classList.add("scrolled");
+    }else{
+        document.body.classList.remove("scrolled");
+    }
+});
+document.addEventListener("mousemove",e=>{
+    const g=document.getElementById("cursor-glow");
+    g.style.left=e.clientX+"px";
+    g.style.top=e.clientY+"px";
+});
+const menuBtn=document.querySelector(".menu-btn");
+const mobileMenu=document.querySelector(".mobile-menu");
+
+menuBtn.addEventListener("click",()=>{
+    mobileMenu.classList.toggle("active");
+});
+
+</script>
+<div id="cursor-glow"></div>
+
+</body>
+</html>
