@@ -601,9 +601,16 @@ body::after{
 }
 @media(max-width:900px){
     .hero{
-        background:#fff !important;
+        background:
+            linear-gradient(
+                to bottom,
+                rgba(255,255,255,.92),
+                rgba(255,255,255,.98)
+            ),
+            url("hero2.png") center/cover no-repeat;
     }
 }
+
 /* HAMBURGER */
 .menu-btn{
     display:none;
@@ -707,7 +714,7 @@ body::after{
     }
 }
 .site-footer{
-    background:#0f172a;
+    background:#ffffff;
     color:#e5e7eb;
     padding:90px 7% 40px;
     position:relative;
@@ -896,16 +903,23 @@ nav{
     top:44px;
 }
 
-/* MOBILE */
 @media(max-width:900px){
     .top-bar.cool{
-        display:none;
+        display:flex;
+        height:40px;
+        padding:0 16px;
+        font-size:.8rem;
+    }
+
+    .top-right .hours{
+        display:none; /* saatleri gizle */
     }
 
     nav{
-        top:0;
+        top:40px; /* bar kadar aşağı insin */
     }
 }
+
 
 </style>
 </head>
@@ -957,8 +971,10 @@ nav{
     </ul>
 </nav>
 <div class="mobile-menu">
-    <a href="#projects">Projeler</a>
-    <a href="#contact">İletişim</a>
+    <li><a href="#services">Hizmetler</a></li>
+<li><a href="#why-uss">Neden Biz</a></li>
+<li><a href="#references">Referanslar</a></li>
+<li><a href="#contact">İletişim</a></li>
 </div>
 
 
@@ -967,6 +983,7 @@ nav{
         <h1>Dijitali <span>sade</span> ve<br>etkili hale getiriyoruz</h1>
         <p>Modern, hızlı ve premium web deneyimleri.</p>
         <a href="#contact" class="btn">Teklif Al</a>
+        
     </div>
 </section>
 <section class="services" id="services">
@@ -984,7 +1001,6 @@ nav{
         </div>
         <div class="service-card reveal">
             <div class="service-icon">
-    <img src="log.png" alt="">
 </div>
             <h3>SEO & Performans</h3>
             <p>Hızlı ve Google uyumlu siteler.</p>
@@ -1059,15 +1075,13 @@ nav{
 
 </section>
 
-<section class="contact" id="contact">
-    <h2 class="reveal" style="text-align:center">İletişime Geç</h2>
-    <form class="reveal">
-        <input type="text" placeholder="Ad Soyad">
-        <input type="email" placeholder="E-posta">
-        <textarea placeholder="Mesajınız"></textarea>
-        <button>Gönder</button>
-    </form>
-</section>
+<form action="https://formspree.io/f/xeeoprlj" method="POST" class="reveal">
+    <input type="text" name="name" placeholder="Ad Soyad" required>
+    <input type="email" name="email" placeholder="E-posta" required>
+    <textarea name="message" placeholder="Mesajınız" required></textarea>
+    <button type="submit">Gönder</button>
+</form>
+
 
 <footer class="site-footer">
     <div class="footer-grid">
@@ -1084,16 +1098,17 @@ nav{
         <!-- LINKS -->
         <div class="footer-links">
             <h4>Hızlı Menü</h4>
-            <a href="#projects">Projeler</a>
+            <a href="#services">Hizmetler</a>
+            <a href="#why-uss">Neden Biz?</a>
+            <a href="#references">Referanslar</a>
             <a href="#contact">İletişim</a>
-            <a href="#">Hizmetler</a>
         </div>
 
         <!-- CONTACT -->
         <div class="footer-contact">
             <h4>İletişim</h4>
             <p>📍 Türkiye</p>
-            <p>✉️ info@nevawebdesign.com</p>
+            <p>✉️ nevawebdesign18@gmail.com</p>
             <p>💬 WhatsApp ile iletişim</p>
         </div>
 
