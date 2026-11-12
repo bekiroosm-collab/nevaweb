@@ -42,8 +42,30 @@ function renderLeads(){
 $('sectionTitle').textContent='Web Sitesinden Gelen Talepler';
 $('newRecord').classList.add('hidden');$('exportRecords').classList.add('hidden');
 const leads=data.leads||[];
-$('records').innerHTML=leads.length?'<div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>Hizmet / Bütçe</th><th>Talep</th><th>Durum</th></tr></thead><tbody>'+leads.map(x=>'<tr><td>'+safe(new Date(x.created_at).toLocaleDateString('tr-TR'))+'</td><td>'+safe(x.name)+'<div class="muted">'+safe(x.business_name||'')+'</div></td><td>'+safe(x.phone)+'</td><td>'+safe(x.service)+'<div class="muted">'+safe(x.budget||'')+'</div></td><td style="min-width:190px;white-space:pre-wrap">'+safe(x.details)+'</td><td><select data-lead-status="'+safe(x.id)+'">'+[['new','Yeni'],['contacted','İletişime geçildi'],['qualified','Nitelikli'],['closed','Kapatıldı']].map(([v,l])=>'<option value="'+v+'" '+(x.status===v?'selected':'')+'>'+l+'</option>').join('')+'</select></td></tr>').join('')+'</tbody></table></div>':'<p class="empty">Henüz gelen teklif talebi yok.</p>';
+$('records').innerHTML=leads.length?'<div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>Hizmet / Bütçe</th><th>Talep</th><th>Durum</th></tr></thead><tbody>'+leads.map(x=>'<tr><td>'+safe(new Date(x.created_at).toLocaleDateString('tr-TR'))+'</td><td>'+safe(x.name)+'<div class="muted">'+safe(x.business_name||'')+'</div></td><td>'+safe(x.phone)+'</td><td>'+safe(x.service)+'<div class="muted">'+safe(x.budget||'')+'</div></td><td style="min-width:190px;white-space:pre-wrap">'+safe(x.details)+'</td><td><select data-lead-status="'+safe(x.id)+'">'+[['new','Yeni'],['contacted','İletişime geçildi'],['qualified','Nitelikli'],['closed','Kapatıldı']].map(([v,l])=>'<option value="'+v+'" '+(x.status===v?'selected':'')+'>'+l+'</option>').join('')+'</select><div style="margin-top:8px"><button class="btn secondary" data-convert-lead="'+safe(x.id)+'">Müşteriye dönüştür</button></div></td></tr>').join('')+'</tbody></table></div>':'<p class="empty">Henüz gelen teklif talebi yok.</p>';
 }
+$('records').addEventListener('click',async e=>{
+const btn=e.target.closest('[data-convert-lead]');if(!btn)return;
+const lead=(data.leads||[]).find(x=>x.id===btn.dataset.convertLead);if(!lead)return;
+const normalize=x=>String(x||'').replace(/\\D/g,'').replace(/^90(?=5\\d{9}$)/,'0');
+const existing=data.clients.find(c=>normalize(c.phone)&&normalize(c.phone)===normalize(lead.phone));
+let client=existing;
+if(existing){if(!confirm('Bu telefon numarasıyla kayıtlı müşteri var: '+existing.name+'. Mevcut müşteri üzerinden devam edilsin mi?'))return;}
+else{
+if(!confirm(lead.name+' adlı talebi yeni CRM müşterisine dönüştürmek istiyor musun?'))return;
+btn.disabled=true;
+const {data:created,error}=await db.from('nwd_clients').insert({name:lead.name,business_name:lead.business_name||null,phone:lead.phone,notes:'Web sitesi talebi: '+lead.service+'\\nBütçe: '+(lead.budget||'Belirtilmedi')+'\\n'+lead.details}).select().single();
+btn.disabled=false;
+if(error){notify('Müşteri oluşturulamadı: '+error.message);return;}
+client=created;
+}
+const {error:statusError}=await db.from('nwd_leads').update({status:'qualified'}).eq('id',lead.id);
+if(statusError)notify('Müşteri hazır, ancak talep durumu güncellenemedi: '+statusError.message);
+await load();
+if(confirm('Müşteri hazır. Şimdi bu müşteri için teklif hazırlamak ister misin?')){
+tab='quotes';document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab==='quotes'));render();openEditor();const field=$('fields').querySelector('[name="client_id"]');if(field)field.value=client.id;const service=$('fields').querySelector('[name="service"]');if(service)service.value=lead.service;const desc=$('fields').querySelector('[name="description"]');if(desc)desc.value=lead.details;
+}else notify('Müşteri CRM kayıtlarına eklendi.');
+});
 $('records').addEventListener('change',async e=>{
 const select=e.target.closest('[data-lead-status]');if(!select)return;
 const {error}=await db.from('nwd_leads').update({status:select.value}).eq('id',select.dataset.leadStatus);
