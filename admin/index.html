@@ -236,17 +236,14 @@ const conditions=filters[category]||filters['Diğer İşletme'];
 const cleanCity=city.replace(/["\\\n\r]/g,'').slice(0,80);
 const area='area["name"="'+cleanCity+'"]["boundary"="administrative"]->.a;';
 const query='[out:json][timeout:15];'+area+'('+conditions.map(x=>'nwr'+x+'(area.a);').join('')+');out center 60;';
-const endpoints=['https://overpass.private.coffee/api/interpreter','https://overpass.kumi.systems/api/interpreter','https://overpass-api.de/api/interpreter'];
-let json=null,failures=[];
-for(const endpoint of endpoints){
+let json;
 try{
-const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),19000);
-let res;try{res=await fetch(endpoint,{method:'POST',body:new URLSearchParams({data:query}),signal:controller.signal});}finally{clearTimeout(timer)}
-if(!res.ok)throw Error('HTTP '+res.status);
-json=await res.json();if(!Array.isArray(json.elements))throw Error('Geçersiz yanıt');break;
-}catch(err){failures.push(err.message);result.innerHTML='<p class="muted">İlk kaynak yanıt vermedi, alternatif kaynak deneniyor... ('+failures.length+'/'+endpoints.length+')</p>';}
-}
-if(!json){result.innerHTML='<p class="muted">Açık veri servislerine şu anda ulaşılamadı. Birkaç dakika sonra tekrar dene veya işletmeyi Satış Havuzu’na elle ekle. Sunucu yoğunluğu nedeniyle arama yapılamadı.</p>';return;}
+const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),55000);
+let res;try{res=await fetch('/api/neva-search?city='+encodeURIComponent(city)+'&category='+encodeURIComponent(category),{signal:controller.signal});}finally{clearTimeout(timer)}
+const payload=await res.json().catch(()=>({}));
+if(!res.ok)throw Error(payload.error||('API yanıtı: '+res.status));
+json=payload;
+}catch(err){result.innerHTML='<p class="muted">Arama yapılamadı: '+safe(err.message)+'. Sunucu API dağıtımını ve bağlantıyı kontrol et.</p>';return;}
 const found=json.elements.filter(x=>x.tags?.name).slice(0,30);
 window.nevaAiResults=found;
 result.innerHTML=found.length?'<p class="muted">'+found.length+' açık kayıt bulundu. Kaynak: OpenStreetMap / Overpass. Telefon ve adresleri doğrula.</p><div class="table-wrap"><table><thead><tr><th>İşletme</th><th>Telefon</th><th>Adres</th><th>İşlem</th></tr></thead><tbody>'+found.map((x,i)=>'<tr><td>'+safe(x.tags.name)+'</td><td>'+safe(x.tags.phone||x.tags['contact:phone']||'—')+'</td><td>'+safe([x.tags['addr:street'],x.tags['addr:housenumber']].filter(Boolean).join(' ')||city)+'</td><td><button type="button" class="btn ghost" data-ai-pick="'+i+'">Seç</button><button type="button" class="btn secondary" data-ai-save="'+i+'">Havuza Ekle</button></td></tr>').join('')+'</tbody></table></div>':'<p class="muted">Bu bölge ve sektörde açık kayıt bulunamadı. Daha geniş bir şehir veya başka sektör deneyebilirsin.</p>';
