@@ -27,7 +27,8 @@ function fieldHtml([key,label,type,required],value){const v=value??'',req=requir
 if(type==='textarea')return '<div class="wide"><label>'+safe(label)+'</label><textarea '+name+'>'+safe(v)+'</textarea></div>';
 if(type==='client'||type==='project'||opts[type]){const options=type==='client'?data.clients.map(x=>[x.id,x.business_name||x.name]):type==='project'?data.projects.map(x=>[x.id,x.title]):opts[type];return '<div><label>'+safe(label)+'</label><select '+name+' '+req+'><option value="">Seçiniz</option>'+options.map(([id,txt])=>'<option value="'+safe(id)+'" '+(String(v)===String(id)?'selected':'')+'>'+safe(txt)+'</option>').join('')+'</select></div>';}
 return '<div><label>'+safe(label)+'</label><input '+name+' type="'+type+'" '+req+' '+(type==='number'?'min="0" step="0.01"':'')+' value="'+safe(v)+'"></div>';}
-function openEditor(id=null){editing=id;const record=data[tab].find(x=>x.id===id)||{};$('dialogTitle').textContent=(id?'Düzenle: ':'Yeni ')+defs[tab].title;$('fields').innerHTML=defs[tab].fields.map(f=>fieldHtml(f,record[f[0]])).join('');$('editor').showModal();}
+function newQuoteNumber(){const year=new Date().getFullYear();const bytes=new Uint8Array(6);crypto.getRandomValues(bytes);return 'NWD-'+year+'-'+Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();}
+function openEditor(id=null){editing=id;const record=data[tab].find(x=>x.id===id)||{};if(tab==='quotes'&&!id)record.quote_number=newQuoteNumber();$('dialogTitle').textContent=(id?'Düzenle: ':'Yeni ')+defs[tab].title;$('fields').innerHTML=defs[tab].fields.map(f=>fieldHtml(f,record[f[0]])).join('');if(tab==='quotes'){const number=$('fields').querySelector('[name="quote_number"]');if(number){number.readOnly=true;number.title='Teklif numarası otomatik oluşturulur';number.style.background='#f5f1fa';}}$('editor').showModal();}
 function renderDeliveries(){
 const today=new Date();today.setHours(0,0,0,0);
 const dayMs=86400000;
