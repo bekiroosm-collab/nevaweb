@@ -150,16 +150,16 @@ w.document.open();w.document.write(doc);w.document.close();notify('Teklif hazır
 }
 
 function sendQuoteWhatsApp(id){
-const q=data.quotes.find(x=>x.id===id);if(!q)return;
+const q=data.quotes.find(x=>x.id===id);if(!q){notify('Teklif bulunamadı.');return;}
 const c=data.clients.find(x=>x.id===q.client_id);if(!c){notify('Müşteri bulunamadı.');return;}
-let phone=String(c.phone||'').replace(/\\D/g,'');
+let phone=String(c.phone||'').replace(/\D/g,'');
 if(phone.startsWith('00'))phone=phone.slice(2);
 if(phone.startsWith('0'))phone='90'+phone.slice(1);
-if(!/^\\d{10,15}$/.test(phone)){notify('Müşterinin telefon numarasını ülke koduyla birlikte kontrol et.');return;}
+if(/^5\d{9}$/.test(phone))phone='90'+phone;
+if(!/^\d{10,15}$/.test(phone)){notify('Müşterinin telefon numarasını kontrol et. Örnek: 05xxxxxxxxx');alert('WhatsApp için geçerli bir telefon numarası gerekli. Müşteri kaydını düzenleyip tekrar dene.');return;}
 const total=Number(q.amount||0)+Number(q.tax_amount||0);
-const msg=['Merhaba '+(c.name||c.business_name||'')+',','', 'NevaWebDesign olarak projeniz için hazırladığımız teklifin özeti:', 'Teklif No: '+q.quote_number,'Hizmet: '+q.service,'Toplam Tutar: '+currency(total),'Geçerlilik: '+(q.valid_until||'Görüşmeye göre'),'','Teklif detayları ve PDF belgesi ayrıca paylaşılabilir.','Sorularınız veya onayınız için bu mesajı yanıtlayabilirsiniz.','', 'NevaWebDesign | nevawebdesign.com.tr'].join('\\n');
-const url='https://wa.me/'+phone+'?text='+encodeURIComponent(msg);
-const w=window.open(url,'_blank','noopener,noreferrer');if(!w)notify('WhatsApp penceresi engellendi. Açılır pencere izni verip tekrar dene.');else notify('WhatsApp mesajı hazırlandı. Gönderimi WhatsApp üzerinden onayla.');
+const msg=['Merhaba '+(c.name||c.business_name||'')+',','','NevaWebDesign olarak projeniz için hazırladığımız teklifin özeti:','Teklif No: '+q.quote_number,'Hizmet: '+q.service,'Toplam Tutar: '+currency(total),'Geçerlilik: '+(q.valid_until||'Görüşmeye göre'),'','Teklif detayları ve PDF belgesi ayrıca paylaşılabilir.','Sorularınız veya onayınız için bu mesajı yanıtlayabilirsiniz.','','NevaWebDesign | nevawebdesign.com.tr'].join('\n');
+window.location.assign('https://wa.me/'+phone+'?text='+encodeURIComponent(msg));
 }
 $('records').onclick=async e=>{
 const wa=e.target.closest('[data-whatsapp]');if(wa){sendQuoteWhatsApp(wa.dataset.whatsapp);return;}const detail=e.target.closest('[data-detail]');if(detail){await openProjectDetail(detail.dataset.detail);return;}const convert=e.target.closest('[data-convert]');if(convert){await convertQuote(convert.dataset.convert,convert);return;}const pdf=e.target.closest('[data-pdf]');if(pdf){printQuote(pdf.dataset.pdf);return;}const edit=e.target.closest('[data-edit]');if(edit){openEditor(edit.dataset.edit);return;}
