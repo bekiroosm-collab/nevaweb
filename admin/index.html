@@ -56,6 +56,72 @@ dialog{border-radius:18px;box-shadow:0 35px 110px #17142c55}
 @media(max-width:1150px){.shell{padding-right:20px}.top{padding-left:242px;padding-right:20px}#app{grid-template-columns:208px minmax(0,1fr);column-gap:20px}.tabs{margin-top:-108px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:800px){.shell{padding:0 13px 35px}.top{height:auto;min-height:72px;padding:12px 5px;margin-bottom:20px}.top .brand{font-size:19px}#app{display:flex;flex-direction:column;gap:0}#app>*{width:100%}#app>.row.between{margin-bottom:14px}#app>.row.between h1{font-size:25px}.tabs{order:-1;position:sticky;top:0;height:auto;min-height:0;margin:0 -13px 18px;padding:10px 13px;background:#19192c;display:flex;flex-direction:row;gap:7px;overflow-x:auto;overflow-y:hidden;border-radius:0;box-shadow:0 6px 16px #1a1a3420;scrollbar-width:none}.tabs:before{display:none}.tabs button{width:auto;flex:0 0 auto;white-space:nowrap;padding:10px 13px;font-size:12px;border-radius:9px}.tabs button.active{background:#59409b!important}.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.stat{padding:15px;min-height:98px}.stat strong{font-size:19px}.card{padding:16px;border-radius:15px}#app>section.card{margin-bottom:17px!important}#app>div.card{margin-bottom:10px}.row.between{gap:10px}td .row{flex-wrap:wrap}.table-wrap{margin:0;max-width:100%;padding:0}#recordSearch{max-width:none}.dialog-body{padding:18px}}
 @media(max-width:430px){.top .row{gap:5px}.top .row .btn{padding:9px 10px}.brand{font-size:17px!important}#app>.row.between .btn{padding:10px}.stat strong{font-size:17px}.stat small{font-size:11px}}
+
+/* NEVA CRM SIGNATURE — premium visual layer */
+:root{--violet:#7c4dff;--indigo:#4f46e5;--ink:#17192d;--border:#e7e8f3}
+body{background:radial-gradient(circle at 96% 1%,#eee8ff 0,transparent 34%),radial-gradient(circle at 60% 75%,#e9f2ff 0,transparent 42%),#f6f7fc}
+.top{background:#ffffffed;backdrop-filter:blur(20px);border-bottom-color:#e7e6f2}
+.brand{font-size:23px;letter-spacing:-1.4px}.brand span{background:linear-gradient(115deg,#8552ff,#5a45e8,#a84dff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tabs{background:linear-gradient(175deg,#16152b 0%,#211840 58%,#16132b 100%);border-right:1px solid #383052}
+.tabs:after{content:'NEVA • CREATIVE STUDIO';display:block;margin-top:auto;padding:26px 13px 0;font:700 10px Manrope,sans-serif;letter-spacing:1.6px;color:#777293}
+.tabs button{position:relative;letter-spacing:.1px}.tabs button.active{background:linear-gradient(105deg,#6540c4,#3e306d)!important;border-color:#795bcb!important;box-shadow:inset 3px 0 #d2c2ff,0 7px 18px #120b2855!important}
+#app>.row.between{background:linear-gradient(110deg,#242044 0%,#49328b 55%,#8152d6 100%);padding:27px 30px;border-radius:22px;box-shadow:0 15px 35px #40307724;position:relative;overflow:hidden}
+#app>.row.between:before{content:'';position:absolute;width:280px;height:280px;right:18%;top:-180px;border:1px solid #ffffff33;border-radius:50%;box-shadow:0 0 0 45px #ffffff08,0 0 0 95px #ffffff08;pointer-events:none}
+#app>.row.between h1{color:#fff!important;font-size:clamp(26px,2.6vw,35px);position:relative}
+#app>.row.between p{color:#d8cef8!important;position:relative}
+#app>.row.between .btn{background:#fff;color:#5532a4;box-shadow:0 7px 20px #180d3530;position:relative}
+#app>.row.between .btn:hover{background:#f4eeff}
+.card{border-color:#ebeaf4;box-shadow:0 10px 35px #27224d0b,0 2px 5px #27224d05}
+.stat{border:1px solid #eceaf6!important;min-height:137px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.stat:hover{transform:translateY(-3px);box-shadow:0 16px 28px #31234e14}
+.stat:before{height:4px!important;background:linear-gradient(90deg,#8a5cff,#c2a6ff)!important}
+.stat:after{content:'';position:absolute;width:130px;height:130px;border-radius:50%;right:-63px;top:-65px;background:#8862e60a;box-shadow:0 0 0 22px #8862e606}
+.stat:nth-child(1){background:linear-gradient(135deg,#fff,#f5efff)}.stat:nth-child(2){background:linear-gradient(135deg,#fff,#eef4ff)}.stat:nth-child(3){background:linear-gradient(135deg,#fff,#eafaf4)}.stat:nth-child(4){background:linear-gradient(135deg,#fff,#fff1f1)}
+.stat:nth-child(2):before{background:linear-gradient(90deg,#4e89f3,#a4c8ff)!important}.stat:nth-child(3):before{background:linear-gradient(90deg,#20b78e,#9fe6cf)!important}.stat:nth-child(4):before{background:linear-gradient(90deg,#ef8092,#ffbdc7)!important}
+.stat strong{font-size:clamp(21px,2.2vw,31px);color:#26213f}
+#app>section.card{border:1px solid #e9e6f4;background:linear-gradient(160deg,#fff 70%,#faf8ff)}
+#app>div.card{border-radius:22px}
+.btn{transition:transform .18s,box-shadow .18s,background .18s}.btn:not(:disabled):active{transform:scale(.97)}
+.btn.secondary{background:#eee8ff;color:#6540d0}
+#recordSearch{background:#f7f7fd;border:1px solid #e5e3f0}
+table{border-collapse:separate;border-spacing:0}thead th{background:#f8f7fd;color:#666781}tbody tr:hover{background:#f6f2ff}tbody tr:last-child td{border-bottom:0}
+#message:not(:empty){background:#272044;color:#fff;border:1px solid #6043a3}
+dialog{border:1px solid #e6def8}dialog .dialog-body{background:linear-gradient(160deg,#fff,#fbf9ff)}
+.login{background:#fff;box-shadow:0 22px 75px #38265b19}
+@media(min-width:801px){#app>.row.between{min-height:130px}.tabs{top:0}}
+@media(max-width:800px){
+body{background:#f6f7fc}
+.top{margin-bottom:12px}
+#app>.row.between{order:0;padding:21px 19px;border-radius:17px;margin-bottom:16px;min-height:110px}
+#app>.row.between h1{font-size:25px}
+#app>.row.between:before{right:-100px}
+.tabs{order:-1;top:0;margin:0 -13px 14px;padding:10px 13px 12px;border-radius:0;background:#1b1831;box-shadow:0 8px 22px #1d15362a;max-width:calc(100% + 26px)}
+.tabs:after{display:none}
+.tabs button{padding:11px 13px;white-space:nowrap;font-size:12px}
+.tabs button.active{background:#6540c4!important}
+.stats{gap:10px}.stat{min-height:108px;padding:15px 13px}.stat strong{font-size:clamp(16px,4.4vw,23px);line-height:1.3}
+#app>div.card{padding:15px;border-radius:17px}
+#app>section.card{padding:16px}
+#app>div.card>.row.between{align-items:flex-start}
+#app>div.card>.row.between .row{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#app>div.card>.row.between .row .btn{padding:10px 8px;font-size:12px}
+#sectionTitle{font-size:19px}
+#records .table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+#records table{min-width:610px}
+#records td .row{display:flex;flex-wrap:wrap}
+.crm-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.crm-summary>div{padding:13px}
+.crm-summary strong{font-size:clamp(15px,4vw,21px)}
+}
+@media(max-width:430px){
+#app>.row.between{display:flex;align-items:flex-start}
+#app>.row.between .btn{font-size:11px;padding:10px 11px}
+#app>.row.between h1{font-size:22px}
+.stat small{font-size:10px}.stat strong{font-size:17px}
+#app>div.card>.row.between .row{grid-template-columns:1fr 1fr}
+.top .brand{font-size:17px}
+}
+@media(prefers-reduced-motion:reduce){.stat,.btn,.tabs button{transition:none!important}}
 </style></head><body><div class="shell">
 <header class="top"><div><div class="brand">NEVA<span>WEBDESIGN</span></div><div class="muted" style="font-size:12px">İşletme Yönetim Merkezi</div></div><div class="row"><a href="/" class="muted" style="font-size:13px">← Siteye dön</a><button id="logout" class="btn ghost hidden">Çıkış yap</button></div></header>
 <section id="login" class="card login"><div class="tag">Güvenli yönetici girişi</div><h1>Tekrar hoş geldin.</h1><p class="muted">Müşterilerini, tekliflerini ve projelerini tek yerden yönet.</p><form id="loginForm"><label for="email">E-posta</label><input id="email" type="email" autocomplete="username" required><label for="password">Şifre</label><input id="password" type="password" autocomplete="current-password" required><button class="btn" style="width:100%;margin-top:20px">Giriş Yap</button></form><p id="loginError" role="alert" style="color:#b43b48"></p></section>
