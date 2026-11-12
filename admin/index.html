@@ -7,10 +7,11 @@
 <section id="login" class="card login"><div class="tag">Güvenli yönetici girişi</div><h1>Tekrar hoş geldin.</h1><p class="muted">Müşterilerini, tekliflerini ve projelerini tek yerden yönet.</p><form id="loginForm"><label for="email">E-posta</label><input id="email" type="email" autocomplete="username" required><label for="password">Şifre</label><input id="password" type="password" autocomplete="current-password" required><button class="btn" style="width:100%;margin-top:20px">Giriş Yap</button></form><p id="loginError" role="alert" style="color:#b43b48"></p></section>
 <section id="app" class="hidden"><div class="row between"><div><h1 style="margin-bottom:5px">Genel Bakış</h1><p class="muted">NevaWebDesign iş takibi</p></div><button class="btn" id="addBtn">+ Yeni müşteri</button></div><div class="stats"><div class="card stat"><small>Müşteriler</small><strong id="clientCount">0</strong></div><div class="card stat"><small>Aktif projeler</small><strong id="projectCount">0</strong></div><div class="card stat"><small>Toplam tahsilat</small><strong id="paidSum">0 TL</strong></div><div class="card stat"><small>Giderler</small><strong id="expenseSum">0 TL</strong></div></div><nav class="tabs" id="tabs"><button class="active" data-tab="clients">Müşteriler</button><button data-tab="quotes">Teklifler</button><button data-tab="projects">Projeler</button><button data-tab="transactions">Ödemeler & Giderler</button></nav><div class="card"><div class="row between"><h2 id="sectionTitle">Müşteriler</h2><div class="row"><button id="exportRecords" class="btn ghost">CSV dışa aktar</button><button id="newRecord" class="btn secondary">+ Yeni kayıt</button></div></div><div class="table-wrap" id="records"></div></div></section><div id="message" role="status"></div>
 </div><dialog id="editor"><div class="dialog-body"><div class="row between"><h2 id="dialogTitle">Yeni kayıt</h2><button id="closeDialog" class="btn ghost" type="button">Kapat</button></div><form id="recordForm"><div id="fields" class="form-grid"></div><div class="row" style="margin-top:20px"><button class="btn" type="submit">Kaydet</button><button type="button" id="cancelDialog" class="btn ghost">Vazgeç</button></div></form></div></dialog>
+<dialog id="projectDetail"><div class="dialog-body"><div class="row between"><h2 id="detailTitle">Proje detayları</h2><button class="btn ghost" id="closeDetail">Kapat</button></div><div id="detailContent"></div></div></dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="./config.js"></script><script>
 'use strict';
 const $=id=>document.getElementById(id),cfg=window.NEVA_CRM_CONFIG||{};
-let db=null,tab='clients',data={clients:[],quotes:[],projects:[],transactions:[]},editing=null;
+let activeProject=null,projectTasks=[];let db=null,tab='clients',data={clients:[],quotes:[],projects:[],transactions:[]},editing=null;
 const currency=n=>new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:2}).format(Number(n)||0);
 const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const defs={
@@ -30,7 +31,7 @@ function openEditor(id=null){editing=id;const record=data[tab].find(x=>x.id===id
 function render(){const c=data.clients,p=data.projects,t=data.transactions;$('clientCount').textContent=c.length;$('projectCount').textContent=p.filter(x=>!['completed','cancelled'].includes(x.status)).length;$('paidSum').textContent=currency(t.filter(x=>x.type==='payment').reduce((a,x)=>a+Number(x.amount),0));$('expenseSum').textContent=currency(t.filter(x=>x.type==='expense').reduce((a,x)=>a+Number(x.amount),0));$('sectionTitle').textContent=defs[tab].title;
 const headers={clients:['Müşteri','İşletme','Telefon','E-posta'],quotes:['Teklif','Müşteri','Hizmet','Tutar','Durum'],projects:['Proje','Müşteri','Aşama','Anlaşma','Tahsil / Kalan'],transactions:['Proje','Tür','Tutar','Tarih']};
 const cells={clients:x=>[x.name,x.business_name,x.phone,x.email],quotes:x=>[x.quote_number,names(x.client_id,'clients'),x.service,currency(Number(x.amount)+Number(x.tax_amount)),x.status],projects:x=>[x.title,names(x.client_id,'clients'),x.status,currency(x.agreed_amount),(()=>{const paid=data.transactions.filter(t=>t.project_id===x.id&&t.type==='payment').reduce((a,t)=>a+Number(t.amount||0),0);return currency(paid)+' / '+currency(Math.max(0,Number(x.agreed_amount||0)-paid));})()],transactions:x=>[names(x.project_id,'projects'),x.type==='payment'?'Tahsilat':'Gider',currency(x.amount),x.occurred_on]};
-$('records').innerHTML=data[tab].length?'<table><thead><tr>'+headers[tab].map(h=>'<th>'+safe(h)+'</th>').join('')+'<th>İşlem</th></tr></thead><tbody>'+data[tab].map(x=>'<tr>'+cells[tab](x).map(v=>'<td>'+safe(v||'—')+'</td>').join('')+'<td><div class="row"><button class="btn ghost" data-edit="'+safe(x.id)+'">Düzenle</button>'+(tab==='quotes'?'<button class="btn secondary" data-pdf="'+safe(x.id)+'">PDF Hazırla</button>'+(x.status==='accepted'?'<button class="btn secondary" data-convert="'+safe(x.id)+'">Projeye Dönüştür</button>':''):'')+'<button class="btn danger" data-delete="'+safe(x.id)+'">Sil</button></div></td></tr>').join('')+'</tbody></table>':'<div class="empty">Henüz kayıt yok. Yeni kayıt ekleyerek başlayabilirsin.</div>';}
+$('records').innerHTML=data[tab].length?'<table><thead><tr>'+headers[tab].map(h=>'<th>'+safe(h)+'</th>').join('')+'<th>İşlem</th></tr></thead><tbody>'+data[tab].map(x=>'<tr>'+cells[tab](x).map(v=>'<td>'+safe(v||'—')+'</td>').join('')+'<td><div class="row"><button class="btn ghost" data-edit="'+safe(x.id)+'">Düzenle</button>'+(tab==='projects'?'<button class="btn secondary" data-detail="'+safe(x.id)+'">Detaylar</button>':'')+(tab==='quotes'?'<button class="btn secondary" data-pdf="'+safe(x.id)+'">PDF Hazırla</button>'+(x.status==='accepted'?'<button class="btn secondary" data-convert="'+safe(x.id)+'">Projeye Dönüştür</button>':''):'')+'<button class="btn danger" data-delete="'+safe(x.id)+'">Sil</button></div></td></tr>').join('')+'</tbody></table>':'<div class="empty">Henüz kayıt yok. Yeni kayıt ekleyerek başlayabilirsin.</div>';}
 async function load(){for(const k of Object.keys(defs)){const {data:rows,error}=await db.from(defs[k].table).select('*').order('created_at',{ascending:false}).limit(500);if(error)throw error;data[k]=rows||[];}render();}
 async function authenticate(){const {data:{user},error}=await db.auth.getUser();if(error||!user){$('login').classList.remove('hidden');$('app').classList.add('hidden');$('logout').classList.add('hidden');return;}const {data:admin,error:adminError}=await db.from('nwd_admins').select('user_id').eq('user_id',user.id).maybeSingle();if(adminError||!admin){await db.auth.signOut();$('loginError').textContent='Bu hesabın yönetici yetkisi bulunmuyor.';return;}$('login').classList.add('hidden');$('app').classList.remove('hidden');$('logout').classList.remove('hidden');await load();}
 $('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').textContent='';const btn=e.target.querySelector('button');btn.disabled=true;try{const {error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;await authenticate();}catch(err){$('loginError').textContent=err.message||'Giriş başarısız.';}finally{btn.disabled=false;}};
@@ -51,6 +52,34 @@ const {error}=await db.from('nwd_projects').insert({client_id:q.client_id,quote_
 if(error)throw error;await load();notify('Proje oluşturuldu. Projeler sekmesinden görüntüleyebilirsin.');
 }catch(err){notify('Proje oluşturulamadı: '+err.message);}finally{button.disabled=false;}
 }
+$('closeDetail').onclick=()=>$('projectDetail').close();
+async function openProjectDetail(id){
+activeProject=id;const p=data.projects.find(x=>x.id===id);if(!p)return;
+$('detailTitle').textContent=p.title;
+$('projectDetail').showModal();
+await refreshProjectDetail();
+}
+async function refreshProjectDetail(){
+const p=data.projects.find(x=>x.id===activeProject);if(!p)return;
+const c=data.clients.find(x=>x.id===p.client_id)||{};
+const payments=data.transactions.filter(x=>x.project_id===p.id&&x.type==='payment');
+const expenses=data.transactions.filter(x=>x.project_id===p.id&&x.type==='expense');
+const paid=payments.reduce((a,x)=>a+Number(x.amount),0);
+const {data:tasks,error}=await db.from('nwd_project_tasks').select('*').eq('project_id',p.id).order('created_at',{ascending:true});
+const tasksAvailable=!error;projectTasks=tasks||[];
+const d=$('detailContent');
+d.innerHTML='<div class="info" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin:15px 0"><div><b>Müşteri</b><p>'+safe(c.business_name||c.name||'—')+'</p><p>'+safe(c.phone||'')+'</p><p>'+safe(c.email||'')+'</p></div><div><b>Durum ve takvim</b><p>'+safe(p.status)+'</p><p>Başlangıç: '+safe(p.start_date||'—')+'</p><p>Teslim: '+safe(p.due_date||'—')+'</p></div></div>'+
+'<div class="stats" style="grid-template-columns:repeat(2,1fr)"><div class="card stat"><small>Alınan ödeme</small><strong>'+safe(currency(paid))+'</strong></div><div class="card stat"><small>Kalan bakiye</small><strong>'+safe(currency(Math.max(0,Number(p.agreed_amount)-paid)))+'</strong></div></div>'+
+'<h3>Yapılacak işler</h3>'+(tasksAvailable?'<form id="addTaskForm" class="row"><input name="title" maxlength="240" required placeholder="Yeni görev yaz" style="flex:1;min-width:170px"><button class="btn" type="submit">Ekle</button></form><div id="taskList">'+(projectTasks.length?projectTasks.map(t=>'<div class="row between" style="border-bottom:1px solid #eee;padding:10px 0"><label style="margin:0"><input type="checkbox" data-task-toggle="'+safe(t.id)+'" '+(t.done?'checked':'')+' style="width:auto;margin-right:8px"><span style="'+(t.done?'text-decoration:line-through;opacity:.6':'')+'">'+safe(t.title)+'</span></label><button class="btn danger" data-task-delete="'+safe(t.id)+'">Sil</button></div>').join(''):'<p class="muted">Henüz görev eklenmedi.</p>')+'</div>':'<p class="muted">Görev takibi için Supabase SQL Editor’de supabase/project-tasks.sql dosyasını çalıştırmalısın.</p>')+
+'<h3>Ödemeler</h3>'+(payments.length?payments.map(x=>'<p>'+safe(x.occurred_on)+' · '+safe(currency(x.amount))+' · '+safe(x.notes||'Tahsilat')+'</p>').join(''):'<p class="muted">Tahsilat kaydı yok.</p>')+
+'<h3>Giderler</h3>'+(expenses.length?expenses.map(x=>'<p>'+safe(x.occurred_on)+' · '+safe(currency(x.amount))+' · '+safe(x.category||'Gider')+'</p>').join(''):'<p class="muted">Gider kaydı yok.</p>')+
+'<h3>Proje notları</h3><p style="white-space:pre-wrap">'+safe(p.notes||'Henüz not yok.')+'</p><button class="btn secondary" id="editDetailProject">Proje bilgilerini düzenle</button>';
+$('editDetailProject').onclick=()=>{$('projectDetail').close();tab='projects';document.querySelector('[data-tab="projects"]').click();openEditor(p.id);};
+if(!tasksAvailable)return;
+$('addTaskForm').onsubmit=async e=>{e.preventDefault();const title=new FormData(e.target).get('title').trim();if(!title)return;const {error}=await db.from('nwd_project_tasks').insert({project_id:p.id,title});if(error)notify(error.message);else await refreshProjectDetail();};
+$('taskList').onchange=async e=>{const el=e.target.closest('[data-task-toggle]');if(!el)return;const {error}=await db.from('nwd_project_tasks').update({done:el.checked}).eq('id',el.dataset.taskToggle).eq('project_id',p.id);if(error)notify(error.message);await refreshProjectDetail();};
+$('taskList').onclick=async e=>{const el=e.target.closest('[data-task-delete]');if(!el||!confirm('Görev silinsin mi?'))return;const {error}=await db.from('nwd_project_tasks').delete().eq('id',el.dataset.taskDelete).eq('project_id',p.id);if(error)notify(error.message);await refreshProjectDetail();};
+}
 function printQuote(id){
 const q=data.quotes.find(x=>x.id===id);if(!q){notify('Teklif bulunamadı.');return;}
 const c=data.clients.find(x=>x.id===q.client_id)||{};
@@ -64,7 +93,7 @@ w.document.open();w.document.write(doc);w.document.close();notify('Teklif hazır
 }
 
 $('records').onclick=async e=>{
-const convert=e.target.closest('[data-convert]');if(convert){await convertQuote(convert.dataset.convert,convert);return;}const pdf=e.target.closest('[data-pdf]');if(pdf){printQuote(pdf.dataset.pdf);return;}const edit=e.target.closest('[data-edit]');if(edit){openEditor(edit.dataset.edit);return;}
+const detail=e.target.closest('[data-detail]');if(detail){await openProjectDetail(detail.dataset.detail);return;}const convert=e.target.closest('[data-convert]');if(convert){await convertQuote(convert.dataset.convert,convert);return;}const pdf=e.target.closest('[data-pdf]');if(pdf){printQuote(pdf.dataset.pdf);return;}const edit=e.target.closest('[data-edit]');if(edit){openEditor(edit.dataset.edit);return;}
 const del=e.target.closest('[data-delete]');if(!del)return;
 const item=data[tab].find(x=>x.id===del.dataset.delete);if(!item)return;
 const related=tab==='clients'?(data.quotes.filter(x=>x.client_id===item.id).length+data.projects.filter(x=>x.client_id===item.id).length):tab==='projects'?data.transactions.filter(x=>x.project_id===item.id).length:0;
