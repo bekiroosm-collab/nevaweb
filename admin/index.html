@@ -222,12 +222,34 @@ $('records').innerHTML='<div style="display:grid;gap:18px"><div><h3>Potansiyel i
 }
 function nevaAiDraft(){const key=$('nevaAiService').value,biz=$('nevaAiBusiness').value.trim(),name=$('nevaAiContact').value.trim();let body=(messageTemplates[key]||messageTemplates.website).body.replaceAll('{ad}',name||'Yetkili');if(biz)body=body.replace(/^Merhaba [^\n]+,/, 'Merhaba '+biz+' yetkilisi,');$('nevaAiDraft').value=body;}
 async function nevaAiSearch(form){
-const result=$('nevaAiResults');const f=new FormData(form),city=String(f.get('city')||'').trim(),category=String(f.get('category')||'');
-if(!city)return;result.innerHTML='<p class="muted">Açık işletme kayıtları aranıyor...</p>';
-const kinds={'Berber / Erkek Kuaförü':['hairdresser'],'Kadın Kuaförü':['hairdresser'],'Güzellik Merkezi':['beauty'],'Restoran / Kafe':['restaurant','cafe'],'Diğer İşletme':['shop']};
-const tags=kinds[category]||['shop'];const filter=tags.map(x=>x==='shop'?'nwr["shop"]':'nwr["'+(x==='beauty'?'shop':'shop')+'"="'+x+'"]');if(category==='Güzellik Merkezi')filter.push('nwr["beauty"]');
-const q='[out:json][timeout:22];area["name"="'+city.replace(/["\\]/g,'')+'"]["boundary"="administrative"]->.a;('+filter.map(x=>x+'(area.a);').join('')+');out center 80;';
-try{const res=await fetch('https://overpass.kumi.systems/api/interpreter',{method:'POST',body:new URLSearchParams({data:q}),signal:AbortSignal.timeout(28000)});if(!res.ok)throw Error('Kaynak şu anda yanıt vermiyor ('+res.status+').');const json=await res.json();const found=(json.elements||[]).filter(x=>x.tags?.name).slice(0,30);window.nevaAiResults=found;result.innerHTML=found.length?'<p class="muted">'+found.length+' açık kayıt bulundu. Kaynak: OpenStreetMap / Overpass. İletişim bilgilerini doğrula.</p><div class="table-wrap"><table><thead><tr><th>İşletme</th><th>Telefon</th><th>Adres</th><th>İşlem</th></tr></thead><tbody>'+found.map((x,i)=>'<tr><td>'+safe(x.tags.name)+'</td><td>'+safe(x.tags.phone||x.tags['contact:phone']||'—')+'</td><td>'+safe([x.tags['addr:street'],x.tags['addr:housenumber']].filter(Boolean).join(' ')||city)+'</td><td><button type="button" class="btn ghost" data-ai-pick="'+i+'">Seç</button><button type="button" class="btn secondary" data-ai-save="'+i+'">Havuza Ekle</button></td></tr>').join('')+'</tbody></table></div>':'<p class="muted">Bu sorguda açık işletme kaydı bulunamadı. Başka ilçe veya sektör dene.</p>';}catch(err){result.innerHTML='<p class="muted">Araştırma tamamlanamadı: '+safe(err.message)+'. Açık veri servisleri zaman zaman yoğun olabilir.</p>';}
+const result=$('nevaAiResults'),fd=new FormData(form),city=String(fd.get('city')||'').trim(),category=String(fd.get('category')||'');
+if(!city)return;
+result.innerHTML='<p class="muted">İşletmeler aranıyor. İlk servis yanıt vermezse alternatif kaynağı deneyeceğiz...</p>';
+const filters={
+'Berber / Erkek Kuaförü':['["shop"="hairdresser"]'],
+'Kadın Kuaförü':['["shop"="hairdresser"]'],
+'Güzellik Merkezi':['["shop"="beauty"]','["beauty"]'],
+'Restoran / Kafe':['["amenity"="restaurant"]','["amenity"="cafe"]'],
+'Diğer İşletme':['["shop"]["name"]']
+};
+const conditions=filters[category]||filters['Diğer İşletme'];
+const cleanCity=city.replace(/["\\\n\r]/g,'').slice(0,80);
+const area='area["name"="'+cleanCity+'"]["boundary"="administrative"]->.a;';
+const query='[out:json][timeout:15];'+area+'('+conditions.map(x=>'nwr'+x+'(area.a);').join('')+');out center 60;';
+const endpoints=['https://overpass.private.coffee/api/interpreter','https://overpass.kumi.systems/api/interpreter','https://overpass-api.de/api/interpreter'];
+let json=null,failures=[];
+for(const endpoint of endpoints){
+try{
+const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),19000);
+let res;try{res=await fetch(endpoint,{method:'POST',body:new URLSearchParams({data:query}),signal:controller.signal});}finally{clearTimeout(timer)}
+if(!res.ok)throw Error('HTTP '+res.status);
+json=await res.json();if(!Array.isArray(json.elements))throw Error('Geçersiz yanıt');break;
+}catch(err){failures.push(err.message);result.innerHTML='<p class="muted">İlk kaynak yanıt vermedi, alternatif kaynak deneniyor... ('+failures.length+'/'+endpoints.length+')</p>';}
+}
+if(!json){result.innerHTML='<p class="muted">Açık veri servislerine şu anda ulaşılamadı. Birkaç dakika sonra tekrar dene veya işletmeyi Satış Havuzu’na elle ekle. Sunucu yoğunluğu nedeniyle arama yapılamadı.</p>';return;}
+const found=json.elements.filter(x=>x.tags?.name).slice(0,30);
+window.nevaAiResults=found;
+result.innerHTML=found.length?'<p class="muted">'+found.length+' açık kayıt bulundu. Kaynak: OpenStreetMap / Overpass. Telefon ve adresleri doğrula.</p><div class="table-wrap"><table><thead><tr><th>İşletme</th><th>Telefon</th><th>Adres</th><th>İşlem</th></tr></thead><tbody>'+found.map((x,i)=>'<tr><td>'+safe(x.tags.name)+'</td><td>'+safe(x.tags.phone||x.tags['contact:phone']||'—')+'</td><td>'+safe([x.tags['addr:street'],x.tags['addr:housenumber']].filter(Boolean).join(' ')||city)+'</td><td><button type="button" class="btn ghost" data-ai-pick="'+i+'">Seç</button><button type="button" class="btn secondary" data-ai-save="'+i+'">Havuza Ekle</button></td></tr>').join('')+'</tbody></table></div>':'<p class="muted">Bu bölge ve sektörde açık kayıt bulunamadı. Daha geniş bir şehir veya başka sektör deneyebilirsin.</p>';
 }
 function renderMessages(){
 $('sectionTitle').textContent='Mesaj Merkezi';
