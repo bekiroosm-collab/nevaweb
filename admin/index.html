@@ -381,7 +381,7 @@ if(phone.startsWith('0'))phone='90'+phone.slice(1);
 if(/^5\d{9}$/.test(phone))phone='90'+phone;
 if(!/^\d{10,15}$/.test(phone)){notify('Müşterinin telefon numarasını kontrol et. Örnek: 05xxxxxxxxx');alert('WhatsApp için geçerli bir telefon numarası gerekli. Müşteri kaydını düzenleyip tekrar dene.');return;}
 const total=Number(q.amount||0)+Number(q.tax_amount||0);
-const msg=['Merhaba '+(c.name||c.business_name||'')+',','','NevaWebDesign olarak projeniz için hazırladığımız teklifin özeti:','Teklif No: '+q.quote_number,'Hizmet: '+q.service,'Toplam Tutar: '+currency(total),'Geçerlilik: '+(q.valid_until||'Görüşmeye göre'),'','Teklif detayları ve PDF belgesi ayrıca paylaşılabilir.','Sorularınız veya onayınız için bu mesajı yanıtlayabilirsiniz.','','NevaWebDesign | nevawebdesign.com.tr'].join('\n');
+const msg=['Merhaba '+(c.name||c.business_name||'')+',','','NevaWebDesign olarak projeniz için hazırladığımız teklifin özeti:','Teklif No: '+q.quote_number,'Hizmet: '+q.service,'Toplam Tutar: '+currency(total),'Geçerlilik: '+(q.valid_until||'Görüşmeye göre'),'','Teklif detayları ve PDF belgesi ayrıca paylaşılabilir.','Sorularınız veya onayınız için bu mesajı yanıtlayabilirsiniz.','','NevaWebDesign | https://nevawebdesign.com.tr/sistemler'].join('\n');
 window.location.assign('https://wa.me/'+phone+'?text='+encodeURIComponent(msg));
 }
 
