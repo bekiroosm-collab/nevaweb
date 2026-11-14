@@ -4,6 +4,22 @@ Güncelleme: 14 Kasım 2026
 ## Ürün hedefi
 BerberOS'un çalışan randevu/personel/işlem/rapor panelini koruyarak, NevaWebDesign çatısı altında 21 sektöre uyarlanabilen **3 rezervasyon motoru** geliştirmek. 21 ayrı backend kopyası yapılmayacak; her işletmenin verileri birbirinden izole olacak.
 
+## 14 Kasım 2026 — Uygulanan yeni çalışmalar
+
+- [x] `/sistem-demo/`: 21 sektörün tamamı için tek sayfada çalışan etkileşimli **tarayıcı içi prototip**.
+- [x] Randevu prototipinde hizmet, uzman ve saat çakışma kontrolü.
+- [x] Alan prototipinde kaynak kapasitesi, süre ve saat çakışması kontrolü.
+- [x] Ders prototipinde 3 örnek seans ve kontenjan kontrolü.
+- [x] Her sektör için `/berberos/?demo=SEKTOR` derin bağlantısı; demo talep formu sektör ile açılır.
+- [x] `/berberos/` formu mevcut `intake-lead` Supabase Edge Function'a veri gönderir; başarılıysa mevcut `nwd_leads` kayıt sistemine kaydeder.
+- [x] `/admin/` içinde filtrelenmiş **Demo Talepleri** sekmesi açıldı.
+- [x] `supabase/nevaos-v1-draft.sql` içinde ayrı yeni Supabase projesi için taslak ortak çok kiracılı veri şeması hazırlandı.
+- [ ] Gerçek bir demo form gönderiminin mevcut Supabase Edge Function ve admin panelinde uçtan uca test edilmesi; kayıt henüz örnek gerçek talep oluşturularak doğrulanmadı.
+- [ ] Taslak SQL'in **ayrı test veritabanında** uygulanması, RLS/eşzamanlılık testleri, gerçek backend API ve kimlik doğrulama.
+- [ ] Mevcut canlı BerberOS ile yeni motorun kontrollü entegrasyonu.
+
+**Önemli:** `sistem-demo/` örnekleri tarayıcı localStorage kullanır, sunucuya gerçek rezervasyon yapmaz ve işletmeler arası canlı senkronizasyon içermez. Demoda kişisel müşteri bilgileri kullanılmamalıdır. Vercel GitHub dağıtımının başarılı olması, Supabase uçtan uca kayıt testinin yapıldığı anlamına gelmez.
+
 ## Gerçek durum
 - [x] NevaWebDesign `/berberos/` satış sayfası; 3 grup, 21 sektör, sektör araması, WhatsApp teklif akışı
 - [x] NevaWebDesign ana site menülerinde "İşletme Sistemleri" bağlantısı
