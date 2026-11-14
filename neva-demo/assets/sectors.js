@@ -45,7 +45,7 @@ window.NEVA_SECTORS=[
     ],
     "resources": [
       [
-        "KoltuK 1",
+        "Koltuk 1",
         1,
         "Salon"
       ],
