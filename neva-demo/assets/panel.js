@@ -273,7 +273,7 @@ return '<div class="page-head"><div><div class="eyebrow">Müşteri perspektifi /
 '<div class="public-wrap"><div class="public-hero"><small>'+enc(cfg.category.toLocaleUpperCase('tr-TR'))+'</small><h1>'+enc(db.businessName)+'</h1><p>'+enc(cfg.subtitle)+' · '+enc(db.settings.branch)+'</p></div>'+
 '<div class="public-container"><h2>Yerini ayırt</h2><p class="muted" style="font-size:12px">'+enc(publicIntro)+'</p><form id="publicBookingForm">'+
 '<div class="field-grid" style="margin-top:23px">'+field(serviceLabel(),'serviceId','select',service.id,db.services.filter(function(x){return x.active;}).map(function(x){return {value:x.id,label:x.name+(x.price?' · '+money(x.price):'')};}),'required')+
-field(cfg.resourceTitle,'resourceId','select',resource.id,db.resources.filter(function(x){return x.active;}).map(function(x){return {value:x.id,label:x.name+' · '+x.capacity+' kişi';}),'required')+
+field(cfg.resourceTitle,'resourceId','select',resource.id,db.resources.filter(function(x){return x.active;}).map(function(x){return {value:x.id,label:x.name+' · '+x.capacity+' kişi'}),'required')+
 (cfg.group==='appointment'?field(cfg.staffTitle,'staffId','select',db.staff[0]?.id,db.staff.filter(function(s){return s.active&&!s.leave;}).map(function(x){return {value:x.id,label:x.name};}),'required'):'')+
 field('Tarih','date','date',d,null,'required min="'+dateAt(0)+'"')+
 '</div><div class="field" style="margin:20px 0 8px"><label>Uygun Saat Seçin</label></div><div id="publicSlots" class="public-slots"></div><input type="hidden" name="time" id="publicTime" required>'+
