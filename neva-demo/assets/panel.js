@@ -69,7 +69,7 @@ return {businessName:cfg.brand,services:services,staff:staff,resources:resources
  activity:[{id:'a0',date:dateAt(0),text:'Demo verileri yüklendi',kind:'system'}],version:5};
 }
 function serviceDuration(b,list){var service=(list||db.services).find(function(s){return s.id===b.serviceId;});return service?num(service.duration):60;}
-function getData(){try{var old=JSON.parse(localStorage.getItem(key)||'null');if(old&&old.version===5&&Array.isArray(old.bookings)&&Array.isArray(old.services)&&old.settings)return old;}catch(e){}return seed();}
+function getData(){try{var old=JSON.parse(localStorage.getItem(key)||'null');if(old&&old.version===5&&Array.isArray(old.bookings)&&Array.isArray(old.services)&&old.settings){if(!Array.isArray(old.packages))old.packages=[];if(!Array.isArray(old.classSchedule))old.classSchedule=[];return old;}}catch(e){}return seed();}
 var db=getData();
 function save(){try{localStorage.setItem(key,JSON.stringify(db));}catch(e){notify('Tarayıcı depolama alanı dolu. Veriler kaydedilemedi.');}}
 function track(message){db.activity.unshift({id:uid(),date:dateAt(0),text:message,kind:'change'});db.activity=db.activity.slice(0,35);}
