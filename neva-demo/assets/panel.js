@@ -21,6 +21,7 @@ var navItems=[
 ['settings','⚙','İşletme Ayarları'],
 ['public','↗','Online Müşteri Sayfası']
 ];
+if(cfg.group==='appointment')navItems.splice(5,0,['packages','▣','Paketler & Seanslar']);
 if(cfg.group==='space')navItems.splice(3,0,['floor','▦','Alan / Yerleşim']);
 if(cfg.group==='class')navItems.splice(3,0,['attendance','✓','Yoklama']);
 var $=function(id){return document.getElementById(id);};
@@ -38,7 +39,7 @@ var activeStatuses=['confirmed','pending','completed'];
 var prettyStatus={confirmed:'Onaylandı',pending:'Onay Bekliyor',completed:'Tamamlandı',cancelled:'İptal',no_show:'Gelmedi'};
 var methodNames={cash:'Nakit',card:'Kart',transfer:'Havale'};
 var tab='overview',calendarOffset=0,search='',filter='all',period='month',stockSearch='',modalMode='',currentClient=null;
-var key='nevaos-rich-demo-v4-'+cfg.id;
+var key='nevaos-rich-demo-v5-'+cfg.id;
 var STORAGE_LIMIT=300;
 function seed(){
 var customers=names.slice(0,16).map(function(name,i){return {id:'u'+i,name:name,phone:'05•• ••• '+pad(i+11)+' '+pad(i+30),note:'',created:dateAt(-35+i),pet:cfg.id==='veteriner'?['Loki','Pamuk','Mia'][i%3]:''};});
@@ -62,11 +63,12 @@ bookings.push(booking);
 if(status==='completed'&&i%4!==0){payments.push({id:'p'+i,bookingId:booking.id,date:day,amount:ser.price,method:i%2?'card':'cash',staffId:staffItem.id,description:ser.name,kind:'service'});}
 }
 return {businessName:cfg.brand,services:services,staff:staff,resources:resources,customers:customers,bookings:bookings,payments:payments,expenses:expenses,inventory:inventory,
+ packages:cfg.group==='appointment'?[{id:'pk1',clientId:customers[0].id,name:'5 Seans Hizmet Paketi',total:5,used:2,price:services[0].price*4,created:dateAt(-15)},{id:'pk2',clientId:customers[1].id,name:'10 Seans Bakım Paketi',total:10,used:4,price:services[1].price*8,created:dateAt(-10)}]:[],
  settings:{open:'09:00',close:'21:00',approval:false,breakMinutes:0,branch:'Merkez Şube',publicEnabled:true,reminder:'Randevunuz için sizi bekliyoruz.',holiday:false},
- activity:[{id:'a0',date:dateAt(0),text:'Demo verileri yüklendi',kind:'system'}],version:4};
+ activity:[{id:'a0',date:dateAt(0),text:'Demo verileri yüklendi',kind:'system'}],version:5};
 }
 function serviceDuration(b,list){var service=(list||db.services).find(function(s){return s.id===b.serviceId;});return service?num(service.duration):60;}
-function getData(){try{var old=JSON.parse(localStorage.getItem(key)||'null');if(old&&old.version===4&&Array.isArray(old.bookings)&&Array.isArray(old.services)&&old.settings)return old;}catch(e){}return seed();}
+function getData(){try{var old=JSON.parse(localStorage.getItem(key)||'null');if(old&&old.version===5&&Array.isArray(old.bookings)&&Array.isArray(old.services)&&old.settings)return old;}catch(e){}return seed();}
 var db=getData();
 function save(){try{localStorage.setItem(key,JSON.stringify(db));}catch(e){notify('Tarayıcı depolama alanı dolu. Veriler kaydedilemedi.');}}
 function track(message){db.activity.unshift({id:uid(),date:dateAt(0),text:message,kind:'change'});db.activity=db.activity.slice(0,35);}
@@ -182,6 +184,18 @@ return intro(cfg.group==='class'?'Ders Programı':cfg.group==='space'?'Alanlar &
 '<div class="table-wrap"><table><thead><tr><th>Ad / Bölüm</th><th>Kapasite</th><th>Durum</th><th>İşlem</th></tr></thead><tbody>'+rrows+'</tbody></table></div></section></div>'+
 '<div class="panel" style="margin-top:20px">'+panelHeader('Sektörel rezervasyon kuralları','Kaynak ve süre bazlı uygunluk kontrolü')+
 '<div class="notice">Bu demo, aynı saat aralığında bir kaynak veya çalışan için çakışan rezervasyon oluşturmayı engeller. Bu kontrol yalnızca bulunduğunuz tarayıcı içindir; üretimde veritabanı düzeyinde eşzamanlılık kontrolü gereklidir.</div></div>';
+}
+function screenPackages(){
+var packs=db.packages||[],remaining=packs.reduce(function(s,p){return s+Math.max(0,p.total-p.used);},0);
+return intro('Seans Paketleri','Birden fazla seans içeren bakım, antrenman veya danışmanlık paketlerini yönet.')+
+'<div class="kpis">'+card('Aktif paketler',packs.filter(function(x){return x.used<x.total;}).length,'▣','Seans hakları')+
+card('Kalan seans',remaining,'◷','Örnek paket bakiyesi')+
+card('Toplam paket',packs.length,'◈','Demo müşteri paketleri')+
+card('Paket tutarı',money(packs.reduce(function(s,p){return s+p.price;},0)),'₺','Tanımlanan satış tutarı')+'</div>'+
+'<section class="panel">'+panelHeader('Müşteri paketleri','Kalan seansları takip et',button('＋ Paket Oluştur','new-package',null,'primary'))+
+'<div class="table-wrap"><table><thead><tr><th>Müşteri</th><th>Paket</th><th>Kullanılan</th><th>Kalan</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody>'+
+packs.map(function(p){var c=item(db.customers,p.clientId);return '<tr><td><b>'+enc(c?.name||'Demo müşteri')+'</b></td><td>'+enc(p.name)+'</td><td>'+p.used+'/'+p.total+'</td><td>'+Math.max(0,p.total-p.used)+' seans</td><td>'+money(p.price)+'</td><td><div class="row-actions"><button data-action="use-package" data-id="'+enc(p.id)+'" '+(p.used>=p.total?'disabled':'')+'>Seans Kullan</button><button data-action="edit-package" data-id="'+enc(p.id)+'">Düzenle</button></div></td></tr>';}).join('')+'</tbody></table></div>'+
+'<p class="muted" style="font-size:11px;margin-top:17px">Paket kullanımları yalnızca örnek hak takibidir; gerçek ödeme veya tedavi kaydı oluşturmaz.</p></section>';
 }
 function screenTeam(){
 return intro('Ekip & İzin Yönetimi','Çalışanlar, prim oranları ve geçici izin durumlarını yönet.')+
@@ -302,7 +316,7 @@ $('topTitle').textContent=cfg.name+' / '+db.settings.branch;
 $('sidebarLinks').innerHTML=navItems.map(function(n){return '<button type="button" class="side-link '+(tab===n[0]?'active':'')+'" data-action="nav" data-id="'+n[0]+'"><span class="mini-icon">'+n[1]+'</span><span>'+enc(n[2])+'</span></button>';}).join('');
 $('profileName').textContent=db.businessName;$('profileSubtitle').textContent=cfg.subtitle;$('companySymbol').textContent=cfg.group==='appointment'?'✦':cfg.group==='space'?'▦':'♧';
 $('sectorCategory').textContent=cfg.category;$('topSectorSelect').value=cfg.id;
-var pages={overview:screenOverview,calendar:screenCalendar,bookings:screenBookings,customers:screenCustomers,catalog:screenCatalog,team:screenTeam,cash:screenCash,inventory:screenInventory,reports:screenReports,messages:screenMessages,settings:screenSettings,public:screenPublic,floor:screenFloor,attendance:screenAttendance};
+var pages={overview:screenOverview,calendar:screenCalendar,bookings:screenBookings,customers:screenCustomers,catalog:screenCatalog,packages:screenPackages,team:screenTeam,cash:screenCash,inventory:screenInventory,reports:screenReports,messages:screenMessages,settings:screenSettings,public:screenPublic,floor:screenFloor,attendance:screenAttendance};
 $('screen').innerHTML=(pages[tab]||screenOverview)();
 if(tab==='public')showSlots();
 }
@@ -360,6 +374,15 @@ var h='<div class="field-grid">'+field('Ürün adı','name','text',x?.name||'',n
 field('Minimum stok','minimum','number',x?.minimum??5,null,'required min="0" max="100000"')+field('Birim satış fiyatı','price','number',x?.price??100,null,'required min="0" max="1000000"')+'</div>';
 modal(x?'Stok Ürününü Düzenle':'Yeni Stok Ürünü','Miktar ve fiyat değerlerini güncelleyin.',h,x?'edit-stock':'create-stock',x?.id);
 }
+function modalPackage(id){
+var p=id?item(db.packages,id):null;
+var h='<div class="field-grid">'+field('Müşteri','clientId','select',p?.clientId||db.customers[0]?.id,db.customers.map(function(c){return {value:c.id,label:c.name};}),'required')+
+field('Paket adı','name','text',p?.name||'5 Seans Paketi',null,'required minlength="2" maxlength="90"')+
+field('Toplam seans','total','number',p?.total??5,null,'required min="1" max="200"')+
+field('Kullanılmış seans','used','number',p?.used??0,null,'required min="0" max="200"')+
+field('Paket tutarı','price','number',p?.price??1000,null,'required min="0" max="1000000"')+'</div>';
+modal(p?'Paketi Düzenle':'Seans Paketi Oluştur','Kurgusal paket ve seans hakkı kaydı.',h,p?'edit-package':'create-package',p?.id);
+}
 function modalPayment(){
 var h='<div class="field-grid">'+field('İşlem açıklaması','description','text','Hizmet tahsilatı',null,'required maxlength="90"')+field('Tutar (TL)','amount','number','500',null,'required min="1" max="1000000"')+
 field('Yöntem','method','select','card',Object.entries(methodNames).map(function(x){return {value:x[0],label:x[1]};}))+
@@ -400,6 +423,8 @@ if(action==='new-staff')return modalStaff();
 if(action==='edit-staff')return modalStaff(id);
 if(action==='new-stock')return modalStock();
 if(action==='edit-stock')return modalStock(id);
+if(action==='new-package')return modalPackage();
+if(action==='edit-package')return modalPackage(id);
 if(action==='new-payment')return modalPayment();
 if(action==='new-expense')return modalExpense();
 if(action==='change-status')return modalStatus(id);
@@ -450,6 +475,12 @@ track('Çalışan güncellendi: '+n.name);
 var n={name:String(data.name).trim(),quantity:num(data.quantity),minimum:num(data.minimum),price:num(data.price)};
 if(existing)Object.assign(item(db.inventory,id),n);else db.inventory.push(Object.assign({id:uid()},n));
 track('Stok güncellendi: '+n.name);
+}else if(['create-package','edit-package'].includes(m)){
+var total=num(data.total),used=num(data.used);
+if(used>total){notify('Kullanılan seans sayısı toplamı aşamaz.');return;}
+var n={clientId:data.clientId,name:String(data.name).trim(),total:total,used:used,price:num(data.price),created:dateAt(0)};
+if(existing)Object.assign(item(db.packages,id),n);else db.packages.push(Object.assign({id:uid()},n));
+track('Seans paketi güncellendi: '+n.name);
 }else if(m==='create-payment'){
 db.payments.push({id:uid(),amount:num(data.amount),date:data.date,method:data.method,staffId:data.staffId,description:String(data.description).slice(0,90),kind:'manual'});
 track('Tahsilat kaydedildi: '+money(data.amount));
@@ -476,6 +507,7 @@ if(act==='attendance-yes'||act==='attendance-no'){var b=item(db.bookings,id);if(
 if(act==='export-demo'){
 var blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='nevaos-demo-'+cfg.id+'.json';a.click();setTimeout(function(){URL.revokeObjectURL(url);},1500);return;}
 if(act==='reset-demo'){if(confirm('Bu sektördeki tüm örnek verileri sıfırlamak istiyor musun?')){db=seed();save();nav('overview');notify('Örnek kayıtlar yenilendi.');}return;}
+if(act==='use-package'){var p=item(db.packages,id);if(!p)return;if(p.used>=p.total){notify('Bu pakette kalan seans yok.');return;}p.used++;track('Paket seansı kullanıldı: '+p.name);save();render();notify('Seans hakkı güncellendi.');return;}
 if(act==='sell-stock'){
 var product=item(db.inventory,id);if(!product)return;if(product.quantity<1){notify('Ürün stokta yok.');return;}
 product.quantity--;db.payments.push({id:uid(),amount:product.price,date:dateAt(0),method:'cash',staffId:db.staff[0]?.id,description:'Ürün: '+product.name,kind:'product'});track(product.name+' stoktan satıldı');save();render();notify('Ürün satışı ve stok düşümü kaydedildi.');return;}
