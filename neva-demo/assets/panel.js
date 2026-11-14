@@ -298,7 +298,7 @@ $('publicTime').value='';
 }
 function render(){
 if(!document.body)return;
-$('brand').textContent=db.businessName;$('topTitle').textContent=cfg.name+' / '+db.settings.branch;
+$('topTitle').textContent=cfg.name+' / '+db.settings.branch;
 $('sidebarLinks').innerHTML=navItems.map(function(n){return '<button type="button" class="side-link '+(tab===n[0]?'active':'')+'" data-action="nav" data-id="'+n[0]+'"><span class="mini-icon">'+n[1]+'</span><span>'+enc(n[2])+'</span></button>';}).join('');
 $('profileName').textContent=db.businessName;$('profileSubtitle').textContent=cfg.subtitle;$('companySymbol').textContent=cfg.group==='appointment'?'✦':cfg.group==='space'?'▦':'♧';
 $('sectorCategory').textContent=cfg.category;$('topSectorSelect').value=cfg.id;
@@ -519,7 +519,7 @@ var app='<div class="app"><aside class="sidebar"><div class="logo"><div class="l
 '<div class="workspace" id="screen"></div></main></div>'+
 '<dialog id="editDialog" aria-labelledby="modalTitle"><div class="modal-head"><div><h2 id="modalTitle"></h2><p id="modalDescription"></p></div><button type="button" class="modal-close" id="closeModal" aria-label="Pencereyi kapat">×</button></div><div class="modal-body"><form id="modalForm"><div id="modalContent"></div><div class="modal-actions"><button type="button" id="cancelModal" class="btn">İptal</button><button type="submit" class="btn primary">Kaydet</button></div></form></div></dialog><div id="toast" role="status" class="toast hidden"></div>';
 document.body.innerHTML=app;
-$('brand')?.remove(); // legacy markup guard, if any
+// Live page body is assembled above; all demo data is isolated to this sector.
 $('demoRequest').href='/berberos/?demo='+encodeURIComponent(cfg.name);
 $('closeModal').addEventListener('click',function(){$('editDialog').close();});
 $('cancelModal').addEventListener('click',function(){$('editDialog').close();});
