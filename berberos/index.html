@@ -153,6 +153,10 @@ document.querySelectorAll('.sector-item').forEach(function(li){var visible=!q||l
 document.querySelectorAll('.sector-card').forEach(function(card){var hasVisible=Array.from(card.querySelectorAll('.sector-item')).some(function(el){return !el.hidden;});card.hidden=!hasVisible;card.style.display=hasVisible?'':'none';});
 document.getElementById('emptySearch').style.display=seen?'none':'block';
 });
+var directDemo=new URLSearchParams(window.location.search).get('demo');
+if(directDemo&&sectors.some(function(x){return x.n===directDemo;})){
+openQuote(directDemo);
+}
 document.getElementById('quoteForm').addEventListener('submit',async function(e){
 e.preventDefault();
 if(!this.reportValidity())return;
