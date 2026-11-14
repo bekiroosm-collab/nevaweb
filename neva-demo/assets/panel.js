@@ -23,7 +23,7 @@ var navItems=[
 ];
 if(cfg.group==='appointment')navItems.splice(5,0,['packages','▣','Paketler & Seanslar']);
 if(cfg.group==='space')navItems.splice(3,0,['floor','▦','Alan / Yerleşim']);
-if(cfg.group==='class')navItems.splice(3,0,['attendance','✓','Yoklama']);
+if(cfg.group==='class'){navItems.splice(3,0,['attendance','✓','Yoklama']);var ci=navItems.findIndex(function(x){return x[0]==='catalog';});navItems.splice(ci+1,0,['schedule','▦','Haftalık Ders Planı']);}
 var $=function(id){return document.getElementById(id);};
 var enc=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});};
 var num=function(v){return Number(v)||0;};
@@ -63,6 +63,7 @@ bookings.push(booking);
 if(status==='completed'&&i%4!==0){payments.push({id:'p'+i,bookingId:booking.id,date:day,amount:ser.price,method:i%2?'card':'cash',staffId:staffItem.id,description:ser.name,kind:'service'});}
 }
 return {businessName:cfg.brand,services:services,staff:staff,resources:resources,customers:customers,bookings:bookings,payments:payments,expenses:expenses,inventory:inventory,
+ classSchedule:cfg.group==='class'?[{id:'sc0',serviceId:'s0',resourceId:'r0',staffId:'t0',weekday:0,time:'10:00',capacity:12,active:true},{id:'sc1',serviceId:'s1',resourceId:'r1',staffId:'t1',weekday:1,time:'14:30',capacity:10,active:true},{id:'sc2',serviceId:'s2',resourceId:'r2',staffId:'t2',weekday:2,time:'17:00',capacity:18,active:true},{id:'sc3',serviceId:'s3',resourceId:'r0',staffId:'t0',weekday:3,time:'11:00',capacity:12,active:true},{id:'sc4',serviceId:'s0',resourceId:'r1',staffId:'t1',weekday:4,time:'17:30',capacity:10,active:true}]:[],
  packages:cfg.group==='appointment'?[{id:'pk1',clientId:customers[0].id,name:'5 Seans Hizmet Paketi',total:5,used:2,price:services[0].price*4,created:dateAt(-15)},{id:'pk2',clientId:customers[1].id,name:'10 Seans Bakım Paketi',total:10,used:4,price:services[1].price*8,created:dateAt(-10)}]:[],
  settings:{open:'09:00',close:'21:00',approval:false,breakMinutes:0,branch:'Merkez Şube',publicEnabled:true,reminder:'Randevunuz için sizi bekliyoruz.',holiday:false},
  activity:[{id:'a0',date:dateAt(0),text:'Demo verileri yüklendi',kind:'system'}],version:5};
@@ -197,6 +198,19 @@ card('Paket tutarı',money(packs.reduce(function(s,p){return s+p.price;},0)),'�
 packs.map(function(p){var c=item(db.customers,p.clientId);return '<tr><td><b>'+enc(c?.name||'Demo müşteri')+'</b></td><td>'+enc(p.name)+'</td><td>'+p.used+'/'+p.total+'</td><td>'+Math.max(0,p.total-p.used)+' seans</td><td>'+money(p.price)+'</td><td><div class="row-actions"><button data-action="use-package" data-id="'+enc(p.id)+'" '+(p.used>=p.total?'disabled':'')+'>Seans Kullan</button><button data-action="edit-package" data-id="'+enc(p.id)+'">Düzenle</button></div></td></tr>';}).join('')+'</tbody></table></div>'+
 '<p class="muted" style="font-size:11px;margin-top:17px">Paket kullanımları yalnızca örnek hak takibidir; gerçek ödeme veya tedavi kaydı oluşturmaz.</p></section>';
 }
+function screenSchedule(){
+var weekday=['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'],rows=db.classSchedule||[];
+var active=rows.filter(function(x){return x.active;});
+return intro('Haftalık Ders Programı','Derslerin haftalık tekrarlarını, eğitmenleri, saatleri ve sınıf kontenjanlarını yönet.')+
+'<div class="kpis">'+card('Planlanan ders',active.length,'▦','Haftalık aktif kayıt')+card('Eğitmenler',db.staff.length,'♧','Tanımlı öğretmen')+card('Sınıf',db.resources.length,'◫','Kapasiteye göre')+card('Toplam kontenjan',active.reduce(function(n,x){return n+x.capacity;},0),'◉','Haftalık kayıt alanı')+'</div>'+
+'<section class="panel">'+panelHeader('Haftalık program','Sürükle-bırak yerine form ile düzenlenebilen ders şablonları',button('＋ Ders Planla','new-schedule',null,'primary'))+
+'<div class="resource-grid" style="grid-template-columns:repeat(auto-fit,minmax(145px,1fr))">'+weekday.map(function(day,i){var own=rows.filter(function(x){return x.weekday===i&&x.active;}).sort(function(a,b){return a.time.localeCompare(b.time);});return '<div style="border:1px solid #e6eaf2;border-radius:14px;padding:12px;background:#fbfcff"><b style="font-size:12px;color:#67599c">'+day+'</b>'+
+(own.length?own.map(function(x){return '<button data-action="edit-schedule" data-id="'+enc(x.id)+'" style="display:block;margin-top:10px;padding:12px;width:100%;text-align:left;background:#fff;border:1px solid #e4e5ed;border-left:3px solid var(--accent);border-radius:8px"><strong style="font-size:12px">'+enc(x.time)+' '+enc(item(db.services,x.serviceId)?.name||'Ders')+'</strong><small style="display:block;color:#7c8799;margin-top:5px">'+enc(item(db.resources,x.resourceId)?.name||'Sınıf')+' · '+x.capacity+' kişi</small></button>';}).join(''):'<p style="font-size:11px;color:#9aa3b3">Planlanan ders yok</p>')+'</div>';}).join('')+'</div></section>'+
+'<section class="panel" style="margin-top:18px">'+panelHeader('Ders şablonları','Kayıtları aç veya düzenle')+
+'<div class="table-wrap"><table><thead><tr><th>Gün</th><th>Saat</th><th>Ders</th><th>Eğitmen</th><th>Sınıf</th><th>Kontenjan</th><th>İşlem</th></tr></thead><tbody>'+
+rows.map(function(x){return '<tr><td>'+weekday[x.weekday]+'</td><td>'+x.time+'</td><td>'+enc(item(db.services,x.serviceId)?.name||'—')+'</td><td>'+enc(item(db.staff,x.staffId)?.name||'—')+'</td><td>'+enc(item(db.resources,x.resourceId)?.name||'—')+'</td><td>'+x.capacity+'</td><td><div class="row-actions"><button data-action="edit-schedule" data-id="'+enc(x.id)+'">Düzenle</button><button data-action="toggle-schedule" data-id="'+enc(x.id)+'">'+(x.active?'Pasifleştir':'Aktifleştir')+'</button></div></td></tr>';}).join('')+'</tbody></table></div>'+
+'<div class="notice warn" style="margin-top:16px">Bu sayfa örnek haftalık şablonları düzenler. Canlı sistemde her haftanın tarihli ders oturumları, kontenjan ve eğitmen çakışmaları sunucu tarafında oluşturulmalıdır.</div></section>';
+}
 function screenTeam(){
 return intro('Ekip & İzin Yönetimi','Çalışanlar, prim oranları ve geçici izin durumlarını yönet.')+
 '<section class="panel">'+panelHeader(cfg.staffTitle+' Kadrosu',db.staff.length+' çalışan',button('＋ Çalışan Ekle','new-staff',null,'primary'))+
@@ -316,7 +330,7 @@ $('topTitle').textContent=cfg.name+' / '+db.settings.branch;
 $('sidebarLinks').innerHTML=navItems.map(function(n){return '<button type="button" class="side-link '+(tab===n[0]?'active':'')+'" data-action="nav" data-id="'+n[0]+'"><span class="mini-icon">'+n[1]+'</span><span>'+enc(n[2])+'</span></button>';}).join('');
 $('profileName').textContent=db.businessName;$('profileSubtitle').textContent=cfg.subtitle;$('companySymbol').textContent=cfg.group==='appointment'?'✦':cfg.group==='space'?'▦':'♧';
 $('sectorCategory').textContent=cfg.category;$('topSectorSelect').value=cfg.id;
-var pages={overview:screenOverview,calendar:screenCalendar,bookings:screenBookings,customers:screenCustomers,catalog:screenCatalog,packages:screenPackages,team:screenTeam,cash:screenCash,inventory:screenInventory,reports:screenReports,messages:screenMessages,settings:screenSettings,public:screenPublic,floor:screenFloor,attendance:screenAttendance};
+var pages={overview:screenOverview,calendar:screenCalendar,bookings:screenBookings,customers:screenCustomers,catalog:screenCatalog,packages:screenPackages,schedule:screenSchedule,team:screenTeam,cash:screenCash,inventory:screenInventory,reports:screenReports,messages:screenMessages,settings:screenSettings,public:screenPublic,floor:screenFloor,attendance:screenAttendance};
 $('screen').innerHTML=(pages[tab]||screenOverview)();
 if(tab==='public')showSlots();
 }
@@ -374,6 +388,16 @@ var h='<div class="field-grid">'+field('Ürün adı','name','text',x?.name||'',n
 field('Minimum stok','minimum','number',x?.minimum??5,null,'required min="0" max="100000"')+field('Birim satış fiyatı','price','number',x?.price??100,null,'required min="0" max="1000000"')+'</div>';
 modal(x?'Stok Ürününü Düzenle':'Yeni Stok Ürünü','Miktar ve fiyat değerlerini güncelleyin.',h,x?'edit-stock':'create-stock',x?.id);
 }
+function modalSchedule(id){
+var x=id?item(db.classSchedule,id):null;
+var h='<div class="field-grid">'+field('Haftanın günü','weekday','select',x?.weekday??0,[{value:0,label:'Pazartesi'},{value:1,label:'Salı'},{value:2,label:'Çarşamba'},{value:3,label:'Perşembe'},{value:4,label:'Cuma'},{value:5,label:'Cumartesi'},{value:6,label:'Pazar'}])+
+field('Başlangıç','time','time',x?.time||'10:00',null,'required')+
+field('Ders','serviceId','select',x?.serviceId||db.services[0]?.id,db.services.map(function(z){return {value:z.id,label:z.name};}),'required')+
+field('Eğitmen','staffId','select',x?.staffId||db.staff[0]?.id,db.staff.map(function(z){return {value:z.id,label:z.name};}),'required')+
+field('Sınıf','resourceId','select',x?.resourceId||db.resources[0]?.id,db.resources.map(function(z){return {value:z.id,label:z.name};}),'required')+
+field('Kontenjan','capacity','number',x?.capacity??10,null,'required min="1" max="200"')+'</div>';
+modal(x?'Ders Planını Düzenle':'Ders Planla','Tekrarlayan haftalık ders şablonu.',h,x?'edit-schedule':'create-schedule',x?.id);
+}
 function modalPackage(id){
 var p=id?item(db.packages,id):null;
 var h='<div class="field-grid">'+field('Müşteri','clientId','select',p?.clientId||db.customers[0]?.id,db.customers.map(function(c){return {value:c.id,label:c.name};}),'required')+
@@ -423,6 +447,8 @@ if(action==='new-staff')return modalStaff();
 if(action==='edit-staff')return modalStaff(id);
 if(action==='new-stock')return modalStock();
 if(action==='edit-stock')return modalStock(id);
+if(action==='new-schedule')return modalSchedule();
+if(action==='edit-schedule')return modalSchedule(id);
 if(action==='new-package')return modalPackage();
 if(action==='edit-package')return modalPackage(id);
 if(action==='new-payment')return modalPayment();
@@ -475,6 +501,12 @@ track('Çalışan güncellendi: '+n.name);
 var n={name:String(data.name).trim(),quantity:num(data.quantity),minimum:num(data.minimum),price:num(data.price)};
 if(existing)Object.assign(item(db.inventory,id),n);else db.inventory.push(Object.assign({id:uid()},n));
 track('Stok güncellendi: '+n.name);
+}else if(['create-schedule','edit-schedule'].includes(m)){
+var capacity=num(data.capacity),resource=item(db.resources,data.resourceId);
+if(!resource||capacity>resource.capacity){notify('Ders kontenjanı sınıf kapasitesini aşamaz ('+(resource?.capacity||0)+').');return;}
+var n={weekday:num(data.weekday),time:data.time,serviceId:data.serviceId,staffId:data.staffId,resourceId:data.resourceId,capacity:capacity,active:true};
+if(existing)Object.assign(item(db.classSchedule,id),n);else db.classSchedule.push(Object.assign({id:uid()},n));
+track('Haftalık ders programı güncellendi');
 }else if(['create-package','edit-package'].includes(m)){
 var total=num(data.total),used=num(data.used);
 if(used>total){notify('Kullanılan seans sayısı toplamı aşamaz.');return;}
@@ -507,6 +539,7 @@ if(act==='attendance-yes'||act==='attendance-no'){var b=item(db.bookings,id);if(
 if(act==='export-demo'){
 var blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='nevaos-demo-'+cfg.id+'.json';a.click();setTimeout(function(){URL.revokeObjectURL(url);},1500);return;}
 if(act==='reset-demo'){if(confirm('Bu sektördeki tüm örnek verileri sıfırlamak istiyor musun?')){db=seed();save();nav('overview');notify('Örnek kayıtlar yenilendi.');}return;}
+if(act==='toggle-schedule'){var x=item(db.classSchedule,id);if(x){x.active=!x.active;track('Haftalık ders durumu değişti');save();render();}return;}
 if(act==='use-package'){var p=item(db.packages,id);if(!p)return;if(p.used>=p.total){notify('Bu pakette kalan seans yok.');return;}p.used++;track('Paket seansı kullanıldı: '+p.name);save();render();notify('Seans hakkı güncellendi.');return;}
 if(act==='sell-stock'){
 var product=item(db.inventory,id);if(!product)return;if(product.quantity<1){notify('Ürün stokta yok.');return;}
